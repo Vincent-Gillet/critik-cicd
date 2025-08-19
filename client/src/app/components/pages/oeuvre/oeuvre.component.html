@@ -1,0 +1,12 @@
+<div class="container mt-5">
+  <div class="card">
+    <div class="card-body">
+      <h2 class="card-title">{{ oeuvre?.titre }}</h2>
+      <p class="card-text"><strong>Description:</strong> {{ oeuvre?.description_oeuvre }}</p>
+      <p class="card-text"><strong>Date de sortie:</strong> {{ oeuvre?.date_sortie | date:'dd/MM/yyyy' }}</p>
+      <p class="card-text"><strong>Type:</strong> {{ oeuvre?.type }}</p>
+<!--      <p class="card-text"><strong>Auteur:</strong> {{ oeuvre?.auteur }}</p>
+      <p class="card-text"><strong>Genre:</strong> {{ oeuvre?.genre }}</p>-->
+    </div>
+  </div>
+</div>

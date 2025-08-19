@@ -1,0 +1,20 @@
+<!-- src/app/components/pages/home/home.component.html -->
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <h2 class="text-center mb-4">Bienvenu chez Critik</h2>
+      <p class="text-center">
+        Découvrez vos oeuvres préférées, explorez de nouvelles créations et partagez vos critiques avec la communauté.
+      </p>
+      @defer {
+        @for (oeuvre of oeuvres; track oeuvre.id) {
+          <app-carte-oeuvre [oeuvre]="oeuvre"></app-carte-oeuvre>
+        }
+      } @placeholder (minimum 1000ms) {
+        <app-loader></app-loader>
+      } @error {
+        <p>Erreur 404 - non trouvé</p>
+      }
+    </div>
+  </div>
+</div>

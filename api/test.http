@@ -1,0 +1,107 @@
+### Utilisateur - Afficher la liste des utilisateurs
+GET http://localhost:8080/api/utilisateurs
+
+### Utilisateur - Afficher un utilisateur
+GET http://localhost:8080/api/utilisateurs/3
+
+### Utilisateur - Créer un nouvel utilisateur
+POST http://localhost:8080/api/utilisateurs
+Content-Type: application/json
+
+{
+    "nom_utilisateur": "Paul Dupont",
+    "email": "paul@gmail.com",
+    "mot_de_passe": "azerty"
+}
+
+### Utilisateur - Mettre à jour un utilisateur
+PUT http://localhost:8080/api/utilisateurs/3
+Content-Type: application/json
+
+{
+    "nom_utilisateur": "Jean Jean",
+    "email": "updatejean@gmail.com",
+    "mot_de_passe": "azerty"
+}
+
+### Utilisateur - Supprimer un utilisateur
+DELETE http://localhost:8080/api/utilisateurs/1
+
+
+### Authentification - Connexion d'un utilisateur
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "jean@gmail.com",
+    "mot_de_passe": "azerty"
+}
+
+
+### Réalisateur - Afficher la liste des realisateurs
+GET http://localhost:8080/api/realisateurs
+
+### Réalisateur - Afficher un realisateur
+GET http://localhost:8080/api/realisateurs/1
+
+### Réalisateur - Créer un nouvel realisateur
+POST http://localhost:8080/api/realisateurs
+Content-Type: application/json
+
+{
+  "nom_realisateur": "Zack Snyder",
+  "description_realisateur": "Réalisateur américain connu pour ses films d'action.",
+  "date_naissance": "1970-03-01"
+}
+
+
+### Oeuvre - Afficher la liste des oeuvres
+GET http://localhost:8080/api/oeuvres
+
+### Oeuvre - Afficher une oeuvre
+GET http://localhost:8080/api/oeuvres/1
+
+### Oeuvre - Créer une nouvel oeuvre
+POST http://localhost:8080/api/oeuvres
+Content-Type: application/json
+
+{
+  "titre": "Batman v Superman: Dawn of Justice",
+  "description_oeuvre": "Un affrontement épique entre Batman et Superman.",
+  "type": "FILM",
+  "date_sortie": "2016-03-25"
+}
+
+
+### Genre - Afficher la liste des genres
+GET http://localhost:8080/api/genres
+
+### Genre - Afficher un genre
+GET http://localhost:8080/api/genres/1
+
+### Genre - Créer un nouvel genre
+POST http://localhost:8080/api/genres
+Content-Type: application/json
+
+{
+  "nom_genre": "Action",
+  "description_genre": "Films qui mettent l'accent sur des séquences d'action intenses."
+}
+
+### Critique - Afficher la liste des critiques
+GET http://localhost:8080/api/critiques
+
+### Critique - Afficher une critique
+GET http://localhost:8080/api/critiques/1
+
+### Critique - Créer une nouvel critique
+POST http://localhost:8080/api/critiques
+Content-Type: application/json
+
+{
+  "note": 4,
+  "commentaire": "Un film épique avec des scènes d'action incroyables.",
+  "date": "2023-10-01",
+  "utilisateur_id": 1,
+  "oeuvre_id": 1
+}

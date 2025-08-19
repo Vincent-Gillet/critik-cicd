@@ -1,0 +1,48 @@
+<h1>Inscription</h1>
+<section class="form-login-subcription" [formGroup]="subscirbeForm" (ngSubmit)="onSubmit()">
+  <div class="container table-blue">
+    <form class="row g-3 needs-validation" novalidate>
+      <div class="col-md-6">
+        <label for="firstNameSubscription" class="form-label">Prénom *</label>
+        <input type="text" class="form-control" id="firstNameSubscription" formControlName="nom_utilisateur" value="" placeholder="Prénom" required>
+        <app-error-form [fieldName]="'nom_utilisateur'" [nameFormGroup]="subscirbeForm" [isSubmitted]="isSubmitted"></app-error-form>
+      </div>
+      <div class="col-md-6">
+        <label for="emailUserSubscription" class="form-label">Email *</label>
+        <input type="email" class="form-control" id="emailUserSubscription" formControlName="email" placeholder="adresse@gmail.com" required>
+        <app-error-form [fieldName]="'email'" [nameFormGroup]="subscirbeForm" [isSubmitted]="isSubmitted"></app-error-form>
+      </div>
+      <div class="col-md-6">
+        <label for="passwordUserSubscription" class="form-label">Mot de passe *</label>
+        <input type="password" class="form-control" id="passwordUserSubscription" formControlName="mot_de_passe" placeholder="mot de passe" required>
+        <app-error-form [fieldName]="'mot_de_passe'" [nameFormGroup]="subscirbeForm" [isSubmitted]="isSubmitted"></app-error-form>
+      </div>
+      <div class="col-md-6">
+        <label for="passwordUserValidationSubscription" class="form-label">Confirmation de Mot de passe *</label>
+        <input type="password" class="form-control" id="passwordUserValidationSubscription" formControlName="passwordUserValidation" placeholder="mot de passe" required>
+        <app-error-form [fieldName]="'passwordUserValidation'" [nameFormGroup]="subscirbeForm" [isSubmitted]="isSubmitted"></app-error-form>
+      </div>
+      <div class="col-12 div-center">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="" id="invalidCheck" formControlName="termsOfUse" required>
+          <label class="form-check-label" for="invalidCheck">
+            Accepté les conditions d’utilisations *
+          </label>
+          <app-error-form [fieldName]="'termsOfUse'" [nameFormGroup]="subscirbeForm" [isSubmitted]="isSubmitted"></app-error-form>
+          <div class="invalid-feedback">
+            Vous devez accepté les conditions d'utilisations.
+          </div>
+        </div>
+      </div>
+      <div class="col-12 div-center">
+        <button class="btn button-style" type="submit" [disabled]="!subscirbeForm.valid">S'incrire</button>
+      </div>
+      <div class="col-12 div-center">
+        <div class="">Vous avez déjà un compte ?</div>
+      </div>
+      <div class="col-12 div-center">
+        <a class="" [routerLink]="['/connexion']">Se connecter</a>
+      </div>
+    </form>
+  </div>
+</section>

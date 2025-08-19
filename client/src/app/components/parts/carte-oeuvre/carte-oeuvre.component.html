@@ -1,0 +1,10 @@
+<div class="card mb-3">
+  <div class="card-body">
+    <h3 class="card-title">{{ oeuvre?.titre }}</h3>
+    <p class="card-text">{{ oeuvre?.description_oeuvre }}</p>
+    <p class="card-text">
+      <small class="text-muted">{{ oeuvre?.date_sortie | date:'dd/MM/yyyy' }}</small>
+    </p>
+    <button class="btn btn-primary" [routerLink]="['/oeuvre', oeuvre?.id]">Plus</button>
+  </div>
+</div>
