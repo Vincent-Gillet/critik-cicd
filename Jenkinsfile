@@ -70,6 +70,32 @@ pipeline {
             }
         }
 
+        stage('Cleanup Docker Network') {
+            steps {
+                sh 'docker network rm api_default || true'
+            }
+        }
+
+        stage('Cleanup MySQL Docker') {
+            steps {
+                dir('api') {
+                    sh '''
+                    docker-compose -f docker-compose.yml down --volumes --remove-orphans
+                    docker rm -f mysql-critik || true
+                    docker rmi mysql:8.3 || true
+                    '''
+                }
+            }
+        }
+
+        stage('Start MySQL') {
+            steps {
+                dir('api') {
+                    sh 'docker-compose -f docker-compose.yml up -d mysql'
+                }
+            }
+        }
+
         stage('Build Backend') {
           steps {
             dir('api') {
