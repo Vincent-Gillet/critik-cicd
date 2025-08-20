@@ -1,5 +1,6 @@
 # Jenkins configuration
 jenkins_home/
+Jenkinsfile
 
 # IntelliJ IDEA
 .idea/
