@@ -78,21 +78,17 @@ pipeline {
 
         stage('Cleanup MySQL Docker') {
             steps {
-                dir('api') {
-                    sh '''
-                    docker-compose -f docker-compose.yml down --volumes --remove-orphans
-                    docker rm -f mysql-critik || true
-                    docker rmi mysql:8.3 || true
-                    '''
-                }
+                sh '''
+                docker-compose -f docker-compose.yml down --volumes --remove-orphans
+                docker rm -f mysql-critik || true
+                docker rmi mysql:8.3 || true
+                '''
             }
         }
 
         stage('Start MySQL') {
             steps {
-                dir('api') {
-                    sh 'docker-compose -f docker-compose.yml up -d mysql'
-                }
+                sh 'docker-compose -f docker-compose.yml up -d mysql'
             }
         }
 
@@ -106,9 +102,7 @@ pipeline {
 
         stage('MySQL Test Connection') {
             steps {
-                dir('api') {
-                    sh 'docker ps'
-                }
+                sh 'docker ps'
             }
         }
 

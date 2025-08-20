@@ -30,6 +30,25 @@ services:
     networks:
       - critik_network
 
+
+  mysql:
+    image: mysql:8.3
+    container_name: mysql-critik
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db-critik
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - critik_network
+
+volumes:
+  mysql_data:
+
 networks:
   critik_network:
     driver: bridge
