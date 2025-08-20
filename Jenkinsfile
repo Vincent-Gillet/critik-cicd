@@ -104,6 +104,14 @@ pipeline {
           }
         }
 
+        stage('MySQL Test Connection') {
+            steps {
+                dir('api') {
+                    sh 'docker ps'
+                }
+            }
+        }
+
         stage('Spring Build & Test') {
             steps {
                 dir('api') {

@@ -9,6 +9,8 @@ services:
     volumes:
       - ./jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - critik_network
 
   angular:
     build:
@@ -16,6 +18,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "4200:80"
+    networks:
+      - critik_network
 
   spring:
     build:
@@ -23,4 +27,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+    networks:
+      - critik_network
 
+networks:
+  critik_network:
+    driver: bridge
