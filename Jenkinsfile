@@ -3,6 +3,7 @@ pipeline {
 
     tools {
         nodejs 'node'
+        maven 'mvn'
     }
 
     environment {
@@ -51,13 +52,6 @@ pipeline {
             }
         }
 
-        stage('Debug') {
-            steps {
-                sh 'ls -l'
-                sh 'cat docker-compose.yml || echo "Fichier introuvable"'
-            }
-        }
-
         stage('Angular Docker Build') {
             steps {
                 sh 'docker-compose -f docker-compose.yml build angular'
@@ -67,8 +61,10 @@ pipeline {
         stage('Angular Deployement') {
             steps {
                 sh '''
-                docker-compose stop angular
-                docker-compose rm angular
+                docker-compose stop angular || true
+                docker-compose rm -f angular || true
+                docker ps -q --filter "publish=4200" | xargs -r docker stop
+                docker network rm angular-spring_default || true
                 docker-compose up -d angular
                 '''
             }
@@ -84,13 +80,17 @@ pipeline {
 
         stage('Spring Build & Test') {
             steps {
-                sh 'mvn clean install'
+                dir('api') {
+                    sh 'mvn clean install'
+                }
             }
         }
 
         stage('Spring Docker Build') {
             steps {
-                sh 'docker-compose build spring'
+                dir('api') {
+                    sh 'docker-compose build spring'
+                }
             }
         }
 
