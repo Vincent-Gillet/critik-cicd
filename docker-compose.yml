@@ -29,11 +29,11 @@ services:
       - "8080:8080"
     networks:
       - critik_network
-
+    depends_on:
+      - mysql
 
   mysql:
     image: mysql:8.3
-    container_name: mysql-critik
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: db-critik
