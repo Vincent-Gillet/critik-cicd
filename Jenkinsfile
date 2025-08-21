@@ -64,7 +64,7 @@ pipeline {
                 docker-compose stop angular || true
                 docker-compose rm -f angular || true
                 docker ps -q --filter "publish=4200" | xargs -r docker stop
-                docker network rm angular-spring_default || true
+                docker network rm angular-spring_critik_network || true
                 docker-compose up -d angular
                 '''
             }
@@ -72,23 +72,7 @@ pipeline {
 
         stage('Cleanup Docker Network') {
             steps {
-                sh 'docker network rm api_default || true'
-            }
-        }
-
-        stage('Cleanup MySQL Docker') {
-            steps {
-                sh '''
-                docker-compose -f docker-compose.yml down --volumes --remove-orphans
-                docker rm -f mysql-critik || true
-                docker rmi mysql:8.3 || true
-                '''
-            }
-        }
-
-        stage('Start MySQL') {
-            steps {
-                sh 'docker-compose -f docker-compose.yml up -d mysql'
+                sh 'docker network rm api_critik_network || true'
             }
         }
 
@@ -98,12 +82,6 @@ pipeline {
               sh 'mvn clean package -DskipTests'
             }
           }
-        }
-
-        stage('MySQL Test Connection') {
-            steps {
-                sh 'docker ps'
-            }
         }
 
         stage('Spring Build & Test') {
@@ -116,9 +94,7 @@ pipeline {
 
         stage('Spring Docker Build') {
             steps {
-                dir('api') {
-                    sh 'docker-compose build spring'
-                }
+                sh 'docker-compose build spring'
             }
         }
 

@@ -21,17 +21,6 @@ services:
     networks:
       - critik_network
 
-  spring:
-    build:
-      context: ./api
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-    networks:
-      - critik_network
-    depends_on:
-      - mysql
-
   mysql:
     image: mysql:8.3
     environment:
@@ -45,6 +34,18 @@ services:
       - mysql_data:/var/lib/mysql
     networks:
       - critik_network
+
+  spring:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - critik_network
+    depends_on:
+      - mysql
+
 
 volumes:
   mysql_data:
