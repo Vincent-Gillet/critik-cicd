@@ -18,13 +18,14 @@ pipeline {
             }
         }
 
-        stage('Installation') {
+        stage('Setup Node & Angular CLI') {
             steps {
+                sh 'rm -rf /var/jenkins_home/tools/jenkins.plugins.nodejs.tools.NodeJSInstallation/node/lib/node_modules/@angular/cli'
                 sh 'npm install -g @angular/cli@18.2.0'
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Install Angular Dependencies') {
             steps {
                 dir('client') {
                     sh 'npm install'
@@ -32,9 +33,11 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage('Test Angular') {
             steps {
-                sh 'npm test -- --watch=false --browsers=ChromeHeadless --chrome-flags="--no-sandbox --headless --disable-gpu" || echo "Tests ignorés"'
+                dir('client') {
+                    sh 'npm test -- --watch=false --browsers=ChromeHeadless --chrome-flags="--no-sandbox --headless --disable-gpu" || echo "Tests ignored"'
+                }
             }
         }
 
@@ -52,39 +55,32 @@ pipeline {
             }
         }
 
-        stage('Angular Docker Build') {
-            steps {
-                sh 'docker-compose -f docker-compose.yml build angular'
-            }
-        }
-
-        stage('Angular Deployement') {
+        stage('Start MySQL') {
             steps {
                 sh '''
-                docker-compose stop angular || true
-                docker-compose rm -f angular || true
-                docker ps -q --filter "publish=4200" | xargs -r docker stop
-                docker network rm angular-spring_critik_network || true
-                docker-compose up -d angular
+                docker-compose down --rmi all -v || true
+                docker network prune -f
+                docker-compose up -d --build mysql
+
+                # Attendre que MySQL soit prêt
+                until docker exec ${COMPOSE_PROJECT_NAME}_mysql_1 mysqladmin ping --silent; do
+                    echo "En attente de MySQL..."
+                    sleep 2
+                done
+                echo "MySQL est prêt !"
                 '''
             }
         }
 
-        stage('Cleanup Docker Network') {
+        stage('Build Spring Boot') {
             steps {
-                sh 'docker network rm api_critik_network || true'
+                dir('api') {
+                    sh 'mvn clean package -DskipTests'
+                }
             }
         }
 
-        stage('Build Backend') {
-          steps {
-            dir('api') {
-              sh 'mvn clean package -DskipTests'
-            }
-          }
-        }
-
-        stage('Spring Build & Test') {
+        stage('Test Spring Boot') {
             steps {
                 dir('api') {
                     sh 'mvn clean install'
@@ -92,60 +88,47 @@ pipeline {
             }
         }
 
-        stage('Spring Docker Build') {
+        stage('Build Docker Images') {
             steps {
-                sh 'docker-compose build spring'
+                sh 'docker-compose build'
             }
         }
 
-        stage('Spring Deployement') {
+        stage('Deploy Angular') {
+            steps {
+                sh '''
+                docker-compose stop angular
+                docker-compose rm -f angular
+                docker network rm angular-spring_critik_network || true
+                docker-compose up -d --build angular
+                '''
+            }
+        }
+
+        stage('Deploy Spring') {
             steps {
                 sh '''
                 docker-compose stop spring
-                docker-compose rm spring
-                docker-compose up -d spring
+                docker-compose rm -f spring
+                docker network rm apicritiquefilm_critik_network || true
+                docker-compose up -d --build spring
                 '''
             }
         }
 
-/*         stage('Build Docker Image') {
+        stage('Start All Services') {
             steps {
-                sh '''
-                DIST_PATH=$(find dist -name "index.html" | head -n 1 | xargs dirname 2>/dev/null || echo "dist")
-
-                # Créer le Dockerfile
-                echo 'FROM nginx:alpine' > Dockerfile.app
-                echo "COPY $DIST_PATH/ /usr/share/nginx/html/" >> Dockerfile.app
-                echo 'RUN echo "server { listen 8080; location / { root /usr/share/nginx/html; index index.html; try_files \\$uri \\$uri/ /index.html; } }" > /etc/nginx/conf.d/default.conf' >> Dockerfile.app
-                echo 'EXPOSE 8080' >> Dockerfile.app
-                echo 'CMD ["nginx", "-g", "daemon off;"]' >> Dockerfile.app
-                '''
-
-                // Construire l'image Docker
-                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -f Dockerfile.app ."
+                sh 'docker-compose up -d angular spring mysql'
             }
-        } */
-
-/*         stage('Deploy') {
-            steps {
-                // Déployer le conteneur
-                sh """
-                docker stop ${IMAGE_NAME} || true
-                docker rm ${IMAGE_NAME} || true
-                docker run -d --name ${IMAGE_NAME} -p 8081:8080 ${IMAGE_NAME}:${IMAGE_TAG}
-                """
-
-                echo "Application déployée et accessible sur http://localhost:8081"
-            }
-        } */
+        }
     }
 
     post {
         success {
-            echo 'Pipeline réussi ! Application disponible sur http://localhost:8081'
+            echo 'Pipeline succeeded! Angular: http://localhost:4200, Spring: http://localhost:8080'
         }
         failure {
-            echo 'Le pipeline a échoué. Vérifiez les logs pour plus de détails.'
+            echo 'Pipeline failed. Check logs for details.'
         }
     }
 }
