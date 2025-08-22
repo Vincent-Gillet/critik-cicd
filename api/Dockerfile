@@ -2,7 +2,6 @@
 FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /app
 COPY . .
-RUN mvn --version && ls -l /app
 RUN mvn clean package -DskipTests
 
 # Use a lightweight JRE to run the app
