@@ -21,21 +21,19 @@ pipeline {
         stage('Start MySQL') {
             steps {
                 sh '''
-                # Arrêter tout conteneur utilisant le port 3306
-                docker ps -q --filter "publish=3306" | xargs -r docker stop
-                # Supprimer les conteneurs arrêtés
-                docker ps -q --filter "publish=3306" | xargs -r docker rm
-                # Nettoyer les réseaux et volumes
                 docker-compose down --rmi all -v || true
                 docker network prune -f
-                # Démarrer MySQL
                 docker-compose up -d --build mysql
+
                 # Attendre que MySQL soit prêt
                 until docker exec angular-spring_mysql_1 mysqladmin ping --silent; do
                     echo "En attente de MySQL..."
                     sleep 2
                 done
-                echo "MySQL est prêt !"
+
+                # Tester la connexion depuis un conteneur temporaire
+                docker run --network angular-spring_critik_network --rm mysql:8.3 mysql -h mysql -u user -ppassword -e "SHOW DATABASES;"
+                echo "MySQL est prêt et accessible !"
                 '''
             }
         }
