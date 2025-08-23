@@ -111,11 +111,6 @@ pipeline {
                 '''
             }
         }
-        stage('Start All Services') {
-            steps {
-                sh "${DOCKER_COMPOSE} up -d angular spring mysql"
-            }
-        }
     }
     post {
         success {
