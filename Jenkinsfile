@@ -7,6 +7,7 @@ pipeline {
     environment {
         IMAGE_NAME = 'angular-app'
         IMAGE_TAG = 'latest'
+        DOCKER_COMPOSE = '/var/jenkins_home/bin/docker-compose'  // Chemin absolu
     }
     stages {
         stage('Checkout') {
@@ -17,30 +18,31 @@ pipeline {
         stage('Install Docker Compose') {
             steps {
                 sh '''
-                mkdir -p ~/bin
-                curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-x86_64" -o ~/bin/docker-compose
-                chmod +x ~/bin/docker-compose
-                export PATH=$PATH:~/bin
-                docker-compose --version
+                mkdir -p /var/jenkins_home/bin
+                curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /var/jenkins_home/bin/docker-compose
+                chmod +x /var/jenkins_home/bin/docker-compose
+                /var/jenkins_home/bin/docker-compose --version
                 '''
             }
         }
         stage('Start MySQL') {
             steps {
                 sh '''
-                ~/bin/docker-compose -f docker-compose-app.yml up -d --build mysql
+                ${DOCKER_COMPOSE} -f docker-compose-app.yml down --rmi local -v || true
+                ${DOCKER_COMPOSE} -f docker-compose-app.yml up -d --build mysql
 
-                # Wait for MySQL to be ready
-                until docker exec angular-spring_mysql-1 mysqladmin ping --silent; do
+                # Attendre que MySQL soit prêt
+                until docker exec angular-spring-mysql-1 mysqladmin ping --silent; do
                     echo "En attente de MySQL..."
                     sleep 2
                 done
 
-                # Ensure the network exists
+                # Vérifier que le réseau existe
                 docker network inspect angular-spring_critik_network >/dev/null 2>&1 || docker network create angular-spring_critik_network
 
-                # Test connection from a temporary container
-                docker run --network angular-spring_critik_network --rm mysql:8.3 mysql -h angular-spring_mysql_1 -u user -ppassword -e "SHOW DATABASES;"
+                # Tester la connexion depuis un conteneur temporaire
+                echo "Test de connexion à MySQL :"
+                docker run --network angular-spring_critik_network --rm mysql:8.3 mysql -h mysql -u user -ppassword -e "SHOW DATABASES;"
                 echo "MySQL est prêt et accessible !"
                 '''
             }
@@ -88,30 +90,30 @@ pipeline {
         }
         stage('Build Docker Images') {
             steps {
-                sh 'docker compose build'
+                sh "${DOCKER_COMPOSE} build"
             }
         }
         stage('Deploy Angular') {
             steps {
                 sh '''
-                docker compose stop angular
-                docker compose rm -f angular
-                docker compose up -d --build angular
+                ${DOCKER_COMPOSE} stop angular
+                ${DOCKER_COMPOSE} rm -f angular
+                ${DOCKER_COMPOSE} -f docker-compose-app.yml up -d --build angular
                 '''
             }
         }
         stage('Deploy Spring') {
             steps {
                 sh '''
-                docker compose stop spring
-                docker compose rm -f spring
-                docker compose up -d --build spring
+                ${DOCKER_COMPOSE} stop spring
+                ${DOCKER_COMPOSE} rm -f spring
+                ${DOCKER_COMPOSE} -f docker-compose-app.yml up -d --build spring
                 '''
             }
         }
         stage('Start All Services') {
             steps {
-                sh 'docker compose up -d angular spring mysql'
+                sh "${DOCKER_COMPOSE} up -d angular spring mysql"
             }
         }
     }

@@ -29,7 +29,7 @@ services:
 
   spring:
     build:
-      context: ./workspace/angular-spring/api
+      context: ./api
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
