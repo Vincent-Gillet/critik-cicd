@@ -8,6 +8,7 @@ pipeline {
         IMAGE_NAME = 'angular-app'
         IMAGE_TAG = 'latest'
         DOCKER_COMPOSE = '/var/jenkins_home/bin/docker-compose'  // Chemin absolu
+        SONARQUBE = 'sonarqube'  // nom configuré dans "Configure System"
     }
     stages {
         stage('Checkout') {
@@ -109,6 +110,29 @@ pipeline {
                 ${DOCKER_COMPOSE} rm -f spring
                 ${DOCKER_COMPOSE} -f docker-compose-app.yml up -d --build spring
                 '''
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonarcloud') {
+                    sh """
+                        mvn sonar:sonar \
+                          -Dsonar.projectKey=Vincent-Gillet_critik-cicd \
+                          -Dsonar.organization=critik-sonar \
+                          -Dsonar.host.url=https://sonarcloud.io \
+                          -Dsonar.login=0648ab4d42c63de71c83f971849770c94cd9fb65
+                    """
+                }
+            }
+        }
+        stage('Quality Gate') {
+            steps {
+                script {
+                    timeout(time: 1, unit: 'MINUTES') {
+                        waitForQualityGate abortPipeline: true
+                    }
+                }
             }
         }
     }
