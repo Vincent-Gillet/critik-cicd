@@ -87,11 +87,13 @@ pipeline {
         stage('Test Spring Boot') {
             steps {
                 dir('api') {
+/*
                     sh 'mvn clean compile'
                     sh 'mvn test -Dmaven.test.failure.ignore=true'
-/*
+*/
+
                     sh 'mvn clean install'
- */
+
                 }
             }
         }
@@ -141,17 +143,34 @@ pipeline {
         stage('Build and Push Docker Images') {
             steps {
                 sh '''
-                    docker build --platform=linux/amd64 -t $DOCKER_REGISTRY/critik-spring-app:latest ./api
+                    docker build --platform=linux/amd64 -t $DOCKER_REGISTRY/critik-mysql-app:$BUILD_NUMBER -t $DOCKER_REGISTRY/critik-mysql-app:latest ./database
+                    docker push $DOCKER_REGISTRY/critik-mysql-app:$BUILD_NUMBER
+                    docker push $DOCKER_REGISTRY/critik-mysql-app:latest
+
+                    docker build --platform=linux/amd64 -t $DOCKER_REGISTRY/critik-spring-app:$BUILD_NUMBER -t $DOCKER_REGISTRY/critik-spring-app:latest ./api
                     docker push $DOCKER_REGISTRY/critik-spring-app:$BUILD_NUMBER
                     docker push $DOCKER_REGISTRY/critik-spring-app:latest
-                    
-                    docker build --platform=linux/amd64 -t $DOCKER_REGISTRY/critik-angular-app:latest ./client
+
+                    docker build --platform=linux/amd64 -t $DOCKER_REGISTRY/critik-angular-app:$BUILD_NUMBER -t $DOCKER_REGISTRY/critik-angular-app:latest ./client
                     docker push $DOCKER_REGISTRY/critik-angular-app:$BUILD_NUMBER
                     docker push $DOCKER_REGISTRY/critik-angular-app:latest
                 '''
             }
         }
-        
+
+        stage('Deploy MySQL to Render') {
+            steps {
+                sh '''
+                    curl --request POST \\
+                    --url "https://api.render.com/v1/services/$RENDER_SERVICE_ID_MYSQL/deploys" \\
+                    --header 'accept: application/json' \\
+                    --header "authorization: Bearer $RENDER_API_TOKEN" \\
+                    --header 'content-type: application/json' \\
+                    --data '{"clearCache": "clear", "imageUrl": "docker.io/vincentgillet12/critik-mysql-app:latest"}'
+                '''
+            }
+        }
+
         stage('Deploy to Render') {
             parallel {
                 stage('Deploy Angular to Render') {
