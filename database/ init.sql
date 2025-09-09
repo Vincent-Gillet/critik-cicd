@@ -1,0 +1,3 @@
+CREATE DATABASE IF NOT EXISTS `db-critik`;
+GRANT ALL PRIVILEGES ON `db-critik`.* TO 'user'@'%';
+FLUSH PRIVILEGES;
