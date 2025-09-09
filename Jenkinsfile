@@ -7,8 +7,24 @@ pipeline {
     environment {
         IMAGE_NAME = 'angular-app'
         IMAGE_TAG = 'latest'
-        DOCKER_COMPOSE = '/var/jenkins_home/bin/docker-compose'  // Chemin absolu
-        SONARQUBE = 'sonarqube'  // nom configuré dans "Configure System"
+        DOCKER_COMPOSE = '/var/jenkins_home/bin/docker-compose'
+        SONAR_PROJECT_KEY = 'Vincent-Gillet_critik-cicd'
+        SONAR_ORGANIZATION = 'critik-sonar'
+        SONAR_HOST_URL = 'https://sonarcloud.io'
+
+        SONAR_LOGIN = credentials('sonar-token')
+
+/*
+        SONAR_LOGIN = '0648ab4d42c63de71c83f971849770c94cd9fb65'
+ */
+
+        DOCKER_REGISTRY = 'vincentgillet12'
+        DOCKER_REGISTRY_CREDENTIALS = credentials('docker-hub-credentials')
+
+
+/*         RENDER_API_TOKEN = credentials('render-api-token')
+        RENDER_SERVICE_ID_ANGULAR = 'your-angular-service-id'
+        RENDER_SERVICE_ID_SPRING = 'your-spring-service-id' */
     }
     stages {
         stage('Checkout') {
@@ -20,9 +36,9 @@ pipeline {
             steps {
                 sh '''
                 mkdir -p /var/jenkins_home/bin
-                curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /var/jenkins_home/bin/docker-compose
-                chmod +x /var/jenkins_home/bin/docker-compose
-                /var/jenkins_home/bin/docker-compose --version
+                curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o ${DOCKER_COMPOSE}
+                chmod +x ${DOCKER_COMPOSE}
+                ${DOCKER_COMPOSE} --version
                 '''
             }
         }
@@ -31,20 +47,6 @@ pipeline {
                 sh '''
                 ${DOCKER_COMPOSE} -f docker-compose-app.yml down --rmi local -v || true
                 ${DOCKER_COMPOSE} -f docker-compose-app.yml up -d --build mysql
-
-                # Attendre que MySQL soit prêt
-                until docker exec angular-spring-mysql-1 mysqladmin ping --silent; do
-                    echo "En attente de MySQL..."
-                    sleep 2
-                done
-
-                # Vérifier que le réseau existe
-                docker network inspect angular-spring_critik_network >/dev/null 2>&1 || docker network create angular-spring_critik_network
-
-                # Tester la connexion depuis un conteneur temporaire
-                echo "Test de connexion à MySQL :"
-                docker run --network angular-spring_critik_network --rm mysql:8.3 mysql -h mysql -u user -ppassword -e "SHOW DATABASES;"
-                echo "MySQL est prêt et accessible !"
                 '''
             }
         }
@@ -112,29 +114,71 @@ pipeline {
                 '''
             }
         }
-
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('sonarcloud') {
-                    sh """
+                dir('api') {
+                    sh '''
                         mvn sonar:sonar \
-                          -Dsonar.projectKey=Vincent-Gillet_critik-cicd \
-                          -Dsonar.organization=critik-sonar \
-                          -Dsonar.host.url=https://sonarcloud.io \
-                          -Dsonar.login=0648ab4d42c63de71c83f971849770c94cd9fb65
-                    """
+                          -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                          -Dsonar.organization=${SONAR_ORGANIZATION} \
+                          -Dsonar.host.url=${SONAR_HOST_URL} \
+                          -Dsonar.login=${SONAR_LOGIN}
+                    '''
                 }
             }
         }
-        stage('Quality Gate') {
+
+        stage('Docker Login') {
             steps {
-                script {
-                    timeout(time: 1, unit: 'MINUTES') {
-                        waitForQualityGate abortPipeline: true
+                sh 'echo $DOCKER_REGISTRY_CREDENTIALS_PSW | docker login docker.io -u $DOCKER_REGISTRY_CREDENTIALS_USR --password-stdin'
+            }
+        }
+        
+        stage('Build and Push Docker Images') {
+            steps {
+                sh '''
+                    docker build --platform=linux/amd64 -t $DOCKER_REGISTRY/critik-spring-app:latest ./api
+                    docker push $DOCKER_REGISTRY/critik-spring-app:$BUILD_NUMBER
+                    docker push $DOCKER_REGISTRY/critik-spring-app:latest
+                    
+                    docker build --platform=linux/amd64 -t $DOCKER_REGISTRY/critik-angular-app:latest ./client
+                    docker push $DOCKER_REGISTRY/critik-angular-app:$BUILD_NUMBER
+                    docker push $DOCKER_REGISTRY/critik-angular-app:latest
+                '''
+            }
+        }
+        
+        stage('Deploy to Render') {
+            parallel {
+                stage('Deploy Angular to Render') {
+                    steps {
+                        sh '''
+                            curl --request POST 
+                            --url "https://api.render.com/v1/services/$RENDER_SERVICE_ID_ANGULAR/deploys" 
+                            --header 'accept: application/json' 
+                            --header "authorization: Bearer $RENDER_API_TOKEN" 
+                            --header 'content-type: application/json' 
+                            --data "{"clearCache": "clear", "imageUrl": "$DOCKER_REGISTRY/critik-angular-app:$BUILD_NUMBER" }"
+                        '''
+                    }
+                }
+                
+                stage('Deploy Spring to Render') {
+                    steps {
+                        sh '''
+                            curl --request POST 
+                            --url "https://api.render.com/v1/services/$RENDER_SERVICE_ID_SPRING/deploys" 
+                            --header 'accept: application/json' 
+                            --header "authorization: Bearer $RENDER_API_TOKEN" 
+                            --header 'content-type: application/json' 
+                            --data "{"clearCache": "clear", "imageUrl": "$DOCKER_REGISTRY/critik-spring-app:$BUILD_NUMBER" }"
+                        '''
                     }
                 }
             }
         }
+
+
     }
     post {
         success {

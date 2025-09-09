@@ -2,7 +2,6 @@ package com.critik.api.dto;
 
 import com.critik.api.model.Critique;
 import com.critik.api.model.Genre;
-import com.critik.api.model.Realisateur;
 import com.critik.api.model.Type;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -11,14 +10,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OeuvreDTO {
+public class OeuvreGetIdDTO {
+
+    private Long id;
+
     @NotBlank(message = "Le titre de l'oeuvre ne peut pas être vide")
     private String titre;
 

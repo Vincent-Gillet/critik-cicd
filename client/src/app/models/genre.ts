@@ -1,6 +1,8 @@
+import {Oeuvre} from './oeuvre';
+
 export interface Genre {
   readonly id?: number;
-  nom_realisateur: string;
-  description_realisateur: string;
-  date_naissance: string;
+  nom_genre: string;
+  description_genre: string;
+  oeuvres?: Oeuvre[];
 }

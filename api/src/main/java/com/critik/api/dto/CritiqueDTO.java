@@ -1,7 +1,6 @@
 package com.critik.api.dto;
 
-import com.critik.api.model.Oeuvre;
-import com.critik.api.model.Utilisateur;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -24,11 +23,11 @@ public class CritiqueDTO {
     @NotNull(message = "La date ne peut pas être vide")
     private Date date;
 
-    @OneToOne
-    @JoinColumn(name = "utilisateur_id", referencedColumnName = "id")
-    private Long utilisateur_id;
+    @ManyToOne
+    @JsonBackReference
+    private Long utilisateur;
 
-    @OneToOne
-    @JoinColumn(name = "oeuvre_id", referencedColumnName = "id")
-    private Long oeuvre_id;
+    @ManyToOne
+    @JsonBackReference
+    private Long oeuvre;
 }

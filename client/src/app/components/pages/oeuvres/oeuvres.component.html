@@ -1,1 +1,66 @@
-<p>oeuvres works!</p>
+<div class="container mt-5">
+
+  <form class="row g-3 needs-validation" novalidate [formGroup]="searchOeuvreForm" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+      <label for="search" class="form-label">Titre</label>
+      <input type="text" class="form-control" id="search" formControlName="titre" placeholder="Titre">
+    </div>
+    <div class="mb-3">
+      <label for="search" class="form-label">Réalisateur</label>
+      <input type="text" class="form-control" id="search" formControlName="nom_realisateur" placeholder="Réalisateur">
+    </div>
+    <div class="mb-3">
+      <label for="type" class="form-label">Type</label>
+      <select name="type" id="type" class="form-control" formControlName="type">
+        <option disabled selected value>Choisir un type</option>
+        <option selected value>-</option>
+        <option value="FILM">Film</option>
+        <option value="ANIME">Anime</option>
+        <option value="SERIE">Série</option>
+      </select>
+    </div>
+    <div class="mb-3">
+      <label for="genre" class="form-label">Genre</label>
+      <select name="genre" id="genre" class="form-control" formControlName="nom_genre">
+        <option disabled selected value>Choisir un genre</option>
+        <option selected value>-</option>
+        @for (genre of genres; track genre.id) {
+          <option value="{{ genre?.nom_genre }}">{{ genre?.nom_genre }}</option>
+        }
+      </select>
+    </div>
+
+    <button class="btn btn-primary" type="submit">Rechercher</button>
+    <button class="btn btn-secondary" type="button" (click)="resetForm()">Réinitialiser</button>
+
+  </form>
+
+  @for (oeuvre of oeuvres; track oeuvre.id) {
+    <app-carte-oeuvre [oeuvre]="oeuvre"></app-carte-oeuvre>
+  }
+
+  <nav aria-label="Pagination">
+    <ul class="pagination justify-content-center">
+
+      <!-- Précédent -->
+      <li class="page-item" [class.disabled]="pageActuelle === 0">
+        <a class="page-link" (click)="previousPage()" tabindex="-1">Précédent</a>
+      </li>
+
+      <!-- Pages -->
+      @for (page of arrayPages; track page) {
+        <li class="page-item" [class.active]="page === pageActuelle">
+          <a class="page-link" (click)="goToPage(page)">{{ page + 1 }}</a>
+        </li>
+      }
+
+      <!-- Suivant -->
+      <li class="page-item" [class.disabled]="pageActuelle >= totalPage - 1">
+        <a class="page-link" (click)="nextPage()">Suivant</a>
+      </li>
+
+    </ul>
+  </nav>
+
+
+</div>

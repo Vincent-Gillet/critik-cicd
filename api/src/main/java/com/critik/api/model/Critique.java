@@ -1,5 +1,6 @@
 package com.critik.api.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -28,11 +29,22 @@ public class Critique {
     @NotNull(message = "La date ne peut pas être vide")
     private Date date;
 
-    @OneToOne
-    @JoinColumn(name = "utilisateur_id", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "utilisateur_id")
+    @JsonBackReference
     private Utilisateur utilisateur;
 
-    @OneToOne
+/*    @OneToOne
+    @JoinColumn(name = "utilisateur_id", referencedColumnName = "id")
+    private Utilisateur utilisateur;*/
+
+/*    @OneToOne
     @JoinColumn(name = "oeuvre_id", referencedColumnName = "id")
+    private Oeuvre oeuvre;*/
+
+    @ManyToOne
+    @JoinColumn(name = "oeuvre_id")
+    @JsonBackReference
     private Oeuvre oeuvre;
+
 }

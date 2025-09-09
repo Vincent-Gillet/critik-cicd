@@ -11,14 +11,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OeuvreDTO {
+public class OeuvreMinimalDTO {
     @NotBlank(message = "Le titre de l'oeuvre ne peut pas être vide")
     private String titre;
 
@@ -30,11 +28,5 @@ public class OeuvreDTO {
 
     @NotNull(message = "La date de sortie ne peut pas être vide")
     private LocalDate date_sortie;
-
-    private RealisateurminimalDTO realisateur;
-
-    private List<Critique> critiques;
-
-    private List<Genre> genres;
 
 }

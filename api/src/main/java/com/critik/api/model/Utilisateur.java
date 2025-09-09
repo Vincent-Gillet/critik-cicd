@@ -57,4 +57,10 @@ public class Utilisateur implements UserDetails {
     @JsonManagedReference
     @ToString.Exclude
     private List<RefreshToken> refreshTokens = new ArrayList<>();
+
+
+    @OneToMany(mappedBy = "utilisateur", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    @ToString.Exclude
+    private List<Critique> critiques = new ArrayList<>();
 }

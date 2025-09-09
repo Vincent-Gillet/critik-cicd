@@ -7,6 +7,8 @@
       <p class="card-text"><strong>Type:</strong> {{ oeuvre?.type }}</p>
 <!--      <p class="card-text"><strong>Auteur:</strong> {{ oeuvre?.auteur }}</p>
       <p class="card-text"><strong>Genre:</strong> {{ oeuvre?.genre }}</p>-->
+      <p class="card-text"><strong>Genre:</strong> @for(genre of oeuvre?.genres || []; track $index ) { {{ genre?.nom_genre }} }</p>
+      <p class="card-text"><strong>Type:</strong> {{ oeuvre?.realisateur?.nom_realisateur }}</p>
     </div>
   </div>
 </div>

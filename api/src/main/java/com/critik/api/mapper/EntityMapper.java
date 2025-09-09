@@ -10,6 +10,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Component
 @RequiredArgsConstructor
 public class EntityMapper {
@@ -51,14 +55,40 @@ public class EntityMapper {
     // === Realisateur ===
     public RealisateurDTO toDTO(Realisateur realisateur) {
         if (realisateur == null) return null;
+
+        List<OeuvreMinimalDTO> oeuvresDTO = realisateur.getOeuvres() != null
+                ? realisateur.getOeuvres().stream()
+                .map(this::toOeuvreMinimalDTO)
+                .collect(Collectors.toList())
+                : new ArrayList<>();
+
         return new RealisateurDTO(
+                realisateur.getNom_realisateur(),
+                realisateur.getDescription_realisateur(),
+                realisateur.getDate_naissance(),
+                oeuvresDTO
+        );
+    }
+
+    public Realisateur toEntity(RealisateurDTO dto) {
+        if (dto == null) return null;
+        Realisateur realisateur = new Realisateur();
+        realisateur.setNom_realisateur(dto.getNom_realisateur());
+        realisateur.setDescription_realisateur(dto.getDescription_realisateur());
+        realisateur.setDate_naissance(dto.getDate_naissance());
+        return realisateur;
+    }
+
+    public RealisateurminimalDTO toRealisateurMinimalDTO(Realisateur realisateur) {
+        if (realisateur == null) return null;
+        return new RealisateurminimalDTO(
                 realisateur.getNom_realisateur(),
                 realisateur.getDescription_realisateur(),
                 realisateur.getDate_naissance()
         );
     }
 
-    public Realisateur toEntity(RealisateurDTO dto) {
+    public Realisateur toRealisateurEntity(RealisateurminimalDTO dto) {
         if (dto == null) return null;
         Realisateur realisateur = new Realisateur();
         realisateur.setNom_realisateur(dto.getNom_realisateur());
@@ -74,7 +104,24 @@ public class EntityMapper {
                 oeuvre.getTitre(),
                 oeuvre.getDescription_oeuvre(),
                 oeuvre.getType(),
-                oeuvre.getDate_sortie()
+                oeuvre.getDate_sortie(),
+                toRealisateurMinimalDTO(oeuvre.getRealisateur()),
+                oeuvre.getCritiques(),
+                oeuvre.getGenres()
+        );
+    }
+
+    public OeuvreGetIdDTO toIdDTO(Oeuvre oeuvre) {
+        if (oeuvre == null) return null;
+        return new OeuvreGetIdDTO(
+                oeuvre.getId(),
+                oeuvre.getTitre(),
+                oeuvre.getDescription_oeuvre(),
+                oeuvre.getType(),
+                oeuvre.getDate_sortie(),
+                toRealisateurMinimalDTO(oeuvre.getRealisateur()),
+                oeuvre.getCritiques(),
+                oeuvre.getGenres()
         );
     }
 
@@ -85,7 +132,20 @@ public class EntityMapper {
         oeuvre.setDescription_oeuvre(dto.getDescription_oeuvre());
         oeuvre.setType(dto.getType());
         oeuvre.setDate_sortie(dto.getDate_sortie());
+        oeuvre.setRealisateur(toRealisateurEntity(dto.getRealisateur()));
+        oeuvre.setCritiques(dto.getCritiques());
+        oeuvre.setGenres(dto.getGenres());
         return oeuvre;
+    }
+
+    public OeuvreMinimalDTO toOeuvreMinimalDTO(Oeuvre oeuvre) {
+        if (oeuvre == null) return null;
+        return new OeuvreMinimalDTO(
+                oeuvre.getTitre(),
+                oeuvre.getDescription_oeuvre(),
+                oeuvre.getType(),
+                oeuvre.getDate_sortie()
+        );
     }
 
     // === Genre ===
@@ -123,8 +183,9 @@ public class EntityMapper {
         critique.setNote(dto.getNote());
         critique.setCommentaire(dto.getCommentaire());
         critique.setDate(dto.getDate());
-        critique.setUtilisateur(utilisateurService.trouverParId(dto.getUtilisateur_id()).orElse(null));
-        critique.setOeuvre(oeuvreService.trouverParId(dto.getOeuvre_id()).orElse(null));
+        critique.setUtilisateur(utilisateurService.trouverParId(dto.getUtilisateur()).orElse(null));
+        critique.setOeuvre(oeuvreService.trouverParId(dto.getOeuvre()).orElse(null));
+
         return critique;
     }
 

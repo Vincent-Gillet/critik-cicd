@@ -72,6 +72,51 @@ Content-Type: application/json
   "date_sortie": "2016-03-25"
 }
 
+### Oeuvre - Tri les oeuvres avec toutes les informations
+GET http://localhost:8080/api/oeuvres/recherche-type?titre=Inception&description_oeuvre=rêves&type=FILM&date_sortie=2010-07-16
+
+### Oeuvre - Tri les oeuvres avec 3 toutes les informations
+GET http://localhost:8080/api/oeuvres/recherche?titre=Inception&description_oeuvre=rêves&date_sortie=2010-07-16
+
+### Oeuvre - Tri les oeuvres avec 2 informations
+GET http://localhost:8080/api/oeuvres/recherche?titre=In&description_oeuvre=un
+
+### Oeuvre - Tri les oeuvres avec 1 information
+GET http://localhost:8080/api/oeuvres/recherche?titre=In
+
+
+### Oeuvre - Tri les oeuvres avec 1 information
+GET http://localhost:8080/api/oeuvres/recherche-type?titre=In&type=FILM
+
+### Oeuvre - Tri les oeuvres avec 1 information
+GET http://localhost:8080/api/oeuvres/recherche-type?type=FILM
+
+### Oeuvre - Tri les oeuvres avec 1 information
+GET http://localhost:8080/api/oeuvres/recherche?titre=Ava
+
+
+
+### Oeuvre - Tri les oeuvres avec type en plus
+GET http://localhost:8080/api/oeuvres/recherche?titre=Inception&type=FILM&description_oeuvre=rêves&date_sortie=2010-07-16
+
+### Oeuvre - Tri les oeuvres avec les informations et le type
+GET http://localhost:8080/api/oeuvres/recherche?titre=Inception&type=FILM&description_oeuvre=rêves&date_sortie=2010-07-16&nom_genre=Science-Fiction
+
+### Oeuvre - Tri les oeuvres avec les informations et le type
+GET http://localhost:8080/api/oeuvres/recherche?nom_genre=Science-Fiction
+
+### Oeuvre - Tri les oeuvres avec les informations et le type
+GET http://localhost:8080/api/oeuvres/recherche?type=FILM
+
+### Oeuvre - Tri les oeuvres avec les informations et le type
+GET http://localhost:8080/api/oeuvres/recherche?nom_realisateur=Ch
+
+### Oeuvre - Tri les oeuvres avec aucunes informations
+GET http://localhost:8080/api/oeuvres/recherche
+
+### Oeuvre - Tri les oeuvres avec aucunes informations
+GET http://localhost:8080/api/oeuvres/recherche?page=0&size=4
+
 
 ### Genre - Afficher la liste des genres
 GET http://localhost:8080/api/genres
