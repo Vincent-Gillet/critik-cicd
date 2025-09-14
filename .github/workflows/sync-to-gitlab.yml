@@ -14,8 +14,15 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
       - name: Sync to GitLab
         run: |
           git remote add gitlab https://${{ secrets.USERNAME }}:${{ secrets.GITLAB_PAT }}@gitlab.com/vincent.gillet.vg/critik.git
-          git fetch gitlab main || true
-          git push gitlab main --force
+          git fetch gitlab main
+          git reset --hard gitlab/main
+          git merge origin/main --strategy=ours
+          git push gitlab main
