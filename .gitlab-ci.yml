@@ -121,7 +121,7 @@ stages:
 
 selenium-tests:
   stage: test
-  image: node:20
+  image: maven:3.9.6-eclipse-temurin-21
   extends:
     - .mysql-service
   services:
@@ -137,9 +137,9 @@ selenium-tests:
     MYSQL_USER: user
     MYSQL_PASSWORD: password
   before_script:
-    - apt-get update && apt-get install -y openjdk-21-jdk maven
-    - export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
-    - export PATH=$JAVA_HOME/bin:$PATH
+    - apt-get update && apt-get install -y curl
+    - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+    - apt-get install -y nodejs
     - cd client
     - npm ci
     - npx ng serve --port 4200 &
