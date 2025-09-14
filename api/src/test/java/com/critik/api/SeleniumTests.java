@@ -6,7 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class SeleniumTests {
 
-    // Selenium test - v11
+    // Selenium test - v14
 
     @Test
     void main() {
