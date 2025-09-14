@@ -106,7 +106,7 @@ stages:
 .test-sonarqube:
   script:
     - >
-      mvn sonar:sonar -Dsonar.projectKey=SONAR_PROJECT_KEY -Dsonar.organization=critik-sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=0648ab4d42c63de71c83f971849770c94cd9fb65
+      mvn sonar:sonar -Dsonar.projectKey=Vincent-Gillet_critik-cicd -Dsonar.organization=critik-sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=0648ab4d42c63de71c83f971849770c94cd9fb65
 
 .mysql-service:
   services:
