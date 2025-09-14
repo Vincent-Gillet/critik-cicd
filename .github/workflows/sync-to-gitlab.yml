@@ -14,13 +14,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Debug secrets
+      - name: Test GitLab access
         run: |
-          echo "Username length: ${#USERNAME}"
-          echo "Token length: ${#GITLAB_PAT}"
-        env:
-          USERNAME: ${{ secrets.USERNAME }}
-          GITLAB_PAT: ${{ secrets.GITLAB_PAT }}
+          curl -H "PRIVATE-TOKEN: ${{ secrets.GITLAB_PAT }}" "https://gitlab.com/api/v4/projects/vincent.gillet.vg%2Fcritik"
 
       - name: Push to GitLab
         run: |
