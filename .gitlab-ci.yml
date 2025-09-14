@@ -143,6 +143,7 @@ build api:
   extends:
     - .api-variables
     - .change-folder
+    - .java-build
     - .test-sonarqube
 
 package client image:
