@@ -1,6 +1,7 @@
 ---
 stages:
   - build
+  - test
   - package
   - deploy
 
@@ -107,8 +108,8 @@ stages:
   services:
     - name: mysql:8
       alias: mysql
-      command: [ "--default-authentication-plugin=mysql_native_password" ]
-      env:
+      command: ["--default-authentication-plugin=mysql_native_password"]
+      variables:
         MYSQL_ROOT_PASSWORD: root
         MYSQL_DATABASE: db-critik
         MYSQL_USER: user
@@ -117,6 +118,8 @@ stages:
 selenium-tests:
   stage: test
   image: maven:3.8.7-openjdk-17
+  extends:
+    - .mysql-service
   services:
     - name: selenium/standalone-chrome
       alias: selenium
@@ -126,10 +129,10 @@ selenium-tests:
     - cd ../client
     - npm ci
     - npx ng serve --port 4200 &
-    - sleep 30 # Wait for frontend to start (adjust as needed)
+    - sleep 30
     - cd ../api
   script:
-    - mvn test # Runs your Selenium tests
+    - mvn test
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push"'
 
