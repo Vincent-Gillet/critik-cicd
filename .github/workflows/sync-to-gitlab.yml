@@ -13,16 +13,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Debug secrets
-        run: |
-          echo "Username length: ${#USERNAME}"
-          echo "Token length: ${#GITLAB_PAT}"
-        env:
-          USERNAME: ${{ secrets.USERNAME }}
-          GITLAB_PAT: ${{ secrets.GITLAB_PAT }}
-
-      - name: Push to GitLab
-        run: |
-          git remote add gitlab https://${{ secrets.USERNAME }}:${{ secrets.GITLAB_PAT }}@gitlab.com/vincent.gillet.vg/critik.git
-          git push gitlab main --force
+      - name: Sync to GitLab
+        uses: keninkujovic/gitlab-sync@2.1.0
+        with:
+          gitlab_url: ${{ secrets.GITLAB_URL }}
+          username: ${{ secrets.USERNAME }}
+          gitlab_pat: ${{ secrets.GITLAB_PAT }}
