@@ -14,7 +14,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Push to GitLab
+      - name: Sync to GitLab
         run: |
           git remote add gitlab https://${{ secrets.USERNAME }}:${{ secrets.GITLAB_PAT }}@gitlab.com/vincent.gillet.vg/critik.git
-          git push gitlab main
+          git fetch gitlab main || true
+          git push gitlab main --force
