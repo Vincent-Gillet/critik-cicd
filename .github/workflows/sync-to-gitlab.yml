@@ -24,5 +24,5 @@ jobs:
           git remote add gitlab https://${{ secrets.USERNAME }}:${{ secrets.GITLAB_PAT }}@gitlab.com/vincent.gillet.vg/critik.git
           git fetch gitlab main
           git reset --hard gitlab/main
-          git merge origin/main --strategy=ours
+          git merge origin/main --strategy=ours --allow-unrelated-histories
           git push gitlab main
