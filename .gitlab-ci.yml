@@ -126,7 +126,7 @@ selenium-tests:
   variables:
     APP_DIR: api
   before_script:
-    - cd ../client
+    - cd client
     - npm ci
     - npx ng serve --port 4200 &
     - sleep 30
@@ -161,6 +161,7 @@ package api image:
     - .api-variables
     - .change-folder
     - .docker-build
+    - .rules-changes
     - .mysql-service
 
 deploy client:
