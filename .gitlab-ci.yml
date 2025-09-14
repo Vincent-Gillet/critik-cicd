@@ -62,22 +62,19 @@ stages:
   extends:
     - .build
     - .rules-changes
-  image: openjdk:17
-  rules:
-    - changes:
-        paths:
-          - ${APP_DIR}/**/*
+  image: maven:3.8-openjdk-17
   script:
-    - mvn clean install
-  cache:
-    key:
-      files:
-        - ${APP_DIR}/pom.xml
-    paths:
-      - ${APP_DIR}/.m2
+    - mvn clean compile
   artifacts:
+    expire_in: 1 day
     paths:
-      - ${APP_DIR}/target/*.jar
+      - ${APP_DIR}/target/
+
+.api-cache:
+  cache:
+    - key: api-pom-default-${CI_COMMIT_REF_SLUG}
+      paths:
+        - ${APP_DIR}/.m2/repository/
 
 .client-variables:
   variables:
@@ -147,6 +144,7 @@ build api:
     - .api-variables
     - .change-folder
     - .java-build
+    - .api-cache
     - .test-sonarqube
 
 package client image:
