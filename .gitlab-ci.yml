@@ -143,7 +143,6 @@ build api:
   extends:
     - .api-variables
     - .change-folder
-    - .php-build
     - .test-sonarqube
 
 package client image:
