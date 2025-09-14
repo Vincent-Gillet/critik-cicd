@@ -109,15 +109,15 @@ stages:
     - name: mysql:8
       alias: mysql
       command: ["--default-authentication-plugin=mysql_native_password"]
-      variables:
-        MYSQL_ROOT_PASSWORD: root
-        MYSQL_DATABASE: db-critik
-        MYSQL_USER: user
-        MYSQL_PASSWORD: password
+  variables:
+    MYSQL_ROOT_PASSWORD: root
+    MYSQL_DATABASE: db-critik
+    MYSQL_USER: user
+    MYSQL_PASSWORD: password
 
 selenium-tests:
   stage: test
-  image: maven:3.8.7-openjdk-17
+  image: maven:3.8-openjdk-17
   extends:
     - .mysql-service
   services:
