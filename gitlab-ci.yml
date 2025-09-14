@@ -1,0 +1,175 @@
+---
+stages:
+  - build
+  - package
+  - deploy
+
+.build:
+  stage: build
+  retry: 1
+  interruptible: true
+
+.change-folder:
+  before_script:
+    - cd ${APP_DIR}
+
+.docker-build:
+  stage: package
+  image: docker:28
+  services:
+    - name: docker:dind
+  script:
+    - docker login --username="${CI_REGISTRY_USER}" --password="${CI_REGISTRY_PASSWORD}" ${CI_REGISTRY}
+    - docker build -t ${CI_REGISTRY_IMAGE}/${APP_DIR}:${CI_COMMIT_SHORT_SHA} -f Dockerfile ./
+    - docker push ${CI_REGISTRY_IMAGE}/${APP_DIR}:${CI_COMMIT_SHORT_SHA}
+
+.deploy:
+  stage: deploy
+  image:
+    name: alpine/curl:8.14.1
+    entrypoint: [""]
+  script:
+    - >
+      curl --request POST --url "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys" --header 'accept: application/json' --header "authorization: Bearer ${RENDER_API_TOKEN}" --header 'content-type: application/json' --data "{\"clearCache\": \"clear\", \"imageUrl\": \"${CI_REGISTRY_IMAGE}/${APP_DIR}:${CI_COMMIT_SHORT_SHA}\" }"
+
+.rules-changes:
+  rules:
+    - changes:
+        paths:
+          - ${APP_DIR}/**/*
+
+.npm-build:
+  extends:
+    - .build
+    - .rules-changes
+  image: node:14
+  script:
+    - npm ci --cache .npm --prefer-offline
+    - npx ng build --configuration production
+  artifacts:
+    paths:
+      - ${APP_DIR}/dist
+  cache:
+    key:
+      files:
+        - ${APP_DIR}/package-lock.json
+        - ${APP_DIR}/package.json
+    paths:
+      - ${APP_DIR}/.npm
+
+.java-build:
+  extends:
+    - .build
+    - .rules-changes
+  image: openjdk:17
+  rules:
+    - changes:
+        paths:
+          - ${APP_DIR}/**/*
+  script:
+    - mvn clean install
+  cache:
+    key:
+      files:
+        - ${APP_DIR}/pom.xml
+    paths:
+      - ${APP_DIR}/.m2
+  artifacts:
+    paths:
+      - ${APP_DIR}/target/*.jar
+
+.client-variables:
+  variables:
+    APP_DIR: client
+    RENDER_SERVICE_ID: ${RENDER_SERVICE_ID_CLIENT}
+
+.api-variables:
+  variables:
+    APP_DIR: api
+    RENDER_SERVICE_ID: ${RENDER_SERVICE_ID_API}
+
+.environment-production-client:
+  environment:
+    name: production-client
+    url: https://client-224df543.onrender.com
+
+.environment-production-api:
+  environment:
+    name: production-api
+    url: https://api-224df543.onrender.com
+
+.test-sonarqube:
+  script:
+    - >
+      mvn sonar:sonar -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.organization=${SONAR_ORGANIZATION} -Dsonar.host.url=${SONAR_HOST_URL} -Dsonar.login=${SONAR_LOGIN}
+
+.mysql-service:
+  services:
+    - name: mysql:8
+      alias: mysql
+      command: [ "--default-authentication-plugin=mysql_native_password" ]
+      env:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: db-critik
+        MYSQL_USER: user
+        MYSQL_PASSWORD: password
+
+selenium-tests:
+  stage: test
+  image: maven:3.8.7-openjdk-17
+  services:
+    - name: selenium/standalone-chrome
+      alias: selenium
+  variables:
+    APP_DIR: api
+  before_script:
+    - cd ../client
+    - npm ci
+    - npx ng serve --port 4200 &
+    - sleep 30 # Wait for frontend to start (adjust as needed)
+    - cd ../api
+  script:
+    - mvn test # Runs your Selenium tests
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+
+build client:
+  extends:
+    - .client-variables
+    - .change-folder
+    - .npm-build
+
+build api:
+  extends:
+    - .api-variables
+    - .change-folder
+    - .php-build
+    - .test-sonarqube
+
+package client image:
+  extends:
+    - .client-variables
+    - .change-folder
+    - .docker-build
+    - .rules-changes
+
+package api image:
+  extends:
+    - .api-variables
+    - .change-folder
+    - .docker-build
+    - .mysql-service
+
+deploy client:
+  extends:
+    - .client-variables
+    - .environment-production-client
+    - .rules-changes
+    - .deploy
+
+deploy api:
+  extends:
+    - .api-variables
+    - .environment-production-api
+    - .rules-changes
+    - .deploy
