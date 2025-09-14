@@ -6,7 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class SeleniumTests {
 
-    // Selenium test
+    // Selenium test - v1
 
     @Test
     void main() {
