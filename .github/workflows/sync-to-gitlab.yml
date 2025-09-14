@@ -14,11 +14,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Test GitLab access
-        run: |
-          curl -H "PRIVATE-TOKEN: ${{ secrets.GITLAB_PAT }}" "https://gitlab.com/api/v4/projects/vincent.gillet.vg%2Fcritik"
-
       - name: Push to GitLab
         run: |
           git remote add gitlab https://${{ secrets.USERNAME }}:${{ secrets.GITLAB_PAT }}@gitlab.com/vincent.gillet.vg/critik.git
-          git push gitlab main --force
+          git push gitlab main
