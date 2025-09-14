@@ -14,6 +14,13 @@ stages:
   before_script:
     - cd ${APP_DIR}
 
+.client-cache:
+  cache:
+    - key: client-package-lock-${CI_COMMIT_REF_SLUG}
+      paths:
+        - ${APP_DIR}/node_modules/
+        - ${APP_DIR}/.npm/
+
 .docker-build:
   stage: package
   image: docker:28
@@ -43,13 +50,13 @@ stages:
   extends:
     - .build
     - .rules-changes
-  image: node:14
+  image: node:18
   script:
     - npm ci --cache .npm --prefer-offline
-    - npx ng build --configuration production
+    - npx npm run build
   artifacts:
     paths:
-      - ${APP_DIR}/dist
+      - ${APP_DIR}/dist/
   cache:
     key:
       files:
