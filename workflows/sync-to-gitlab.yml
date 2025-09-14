@@ -9,10 +9,6 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - name: Sync to GitLab
         uses: keninkujovic/gitlab-sync@2.1.0
         with:
