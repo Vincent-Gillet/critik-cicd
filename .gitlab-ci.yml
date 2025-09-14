@@ -121,20 +121,28 @@ stages:
 
 selenium-tests:
   stage: test
-  image: maven:3.9.6-eclipse-temurin-21
+  image: node:20
   extends:
     - .mysql-service
   services:
     - name: selenium/standalone-chrome
       alias: selenium
+    - name: mysql:8
+      alias: mysql
+      command: [ "--default-authentication-plugin=mysql_native_password" ]
   variables:
     APP_DIR: api
+    MYSQL_ROOT_PASSWORD: root
+    MYSQL_DATABASE: db-critik
+    MYSQL_USER: user
+    MYSQL_PASSWORD: password
   before_script:
     - cd client
     - npm ci
     - npx ng serve --port 4200 &
     - sleep 30
     - cd ../api
+    - apt-get update && apt-get install -y maven
   script:
     - mvn test
   rules:
