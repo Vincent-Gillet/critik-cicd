@@ -137,12 +137,14 @@ selenium-tests:
     MYSQL_USER: user
     MYSQL_PASSWORD: password
   before_script:
+    - apt-get update && apt-get install -y openjdk-21-jdk maven
+    - export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+    - export PATH=$JAVA_HOME/bin:$PATH
     - cd client
     - npm ci
     - npx ng serve --port 4200 &
     - sleep 30
     - cd ../api
-    - apt-get update && apt-get install -y maven
   script:
     - mvn test
   rules:
