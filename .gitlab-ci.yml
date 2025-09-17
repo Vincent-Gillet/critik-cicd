@@ -33,9 +33,9 @@ variables:
   variables:
     DOCKER_HOST: tcp://docker:2375
   script:
-    - docker login --username="${CI_REGISTRY_USER}" --password="${CI_REGISTRY_PASSWORD}" ${CI_REGISTRY}
-    - docker build -t ${CI_REGISTRY_IMAGE}/${APP_DIR}${NAME_PROJECT}:${CI_COMMIT_SHORT_SHA} -f Dockerfile ./
-    - docker push ${CI_REGISTRY_IMAGE}/${APP_DIR}${NAME_PROJECT}:${CI_COMMIT_SHORT_SHA}
+    - docker login --username="${CI_REGISTRY_USER}" --password="${CI_REGISTRY_PASSWORD}" docker.io
+    - docker build -t docker.io/vincentgillet12/${APP_DIR}${NAME_PROJECT}:${CI_COMMIT_SHORT_SHA} -f Dockerfile ./
+    - docker push docker.io/vincentgillet12/${APP_DIR}${NAME_PROJECT}:${CI_COMMIT_SHORT_SHA}
 
 .deploy:
   stage: deploy
