@@ -5,6 +5,9 @@ stages:
   - package
   - deploy
 
+variables:
+  NAME_PROJECT: -cirtik
+
 .build:
   stage: build
   retry: 1
@@ -28,8 +31,8 @@ stages:
     - name: docker:dind
   script:
     - docker login --username="${CI_REGISTRY_USER}" --password="${CI_REGISTRY_PASSWORD}" ${CI_REGISTRY}
-    - docker build -t ${CI_REGISTRY_IMAGE}/${APP_DIR}:${CI_COMMIT_SHORT_SHA} -f Dockerfile ./
-    - docker push ${CI_REGISTRY_IMAGE}/${APP_DIR}:${CI_COMMIT_SHORT_SHA}
+    - docker build -t ${CI_REGISTRY_IMAGE}/${APP_DIR}${NAME_PROJECT}:${CI_COMMIT_SHORT_SHA} -f Dockerfile ./
+    - docker push ${CI_REGISTRY_IMAGE}/${APP_DIR}${NAME_PROJECT}:${CI_COMMIT_SHORT_SHA}
 
 .deploy:
   stage: deploy
@@ -38,7 +41,7 @@ stages:
     entrypoint: [""]
   script:
     - >
-      curl --request POST --url "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys" --header 'accept: application/json' --header "authorization: Bearer ${RENDER_API_TOKEN}" --header 'content-type: application/json' --data "{\"clearCache\": \"clear\", \"imageUrl\": \"${CI_REGISTRY_IMAGE}/${APP_DIR}:${CI_COMMIT_SHORT_SHA}\" }"
+      curl --request POST --url "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys" --header 'accept: application/json' --header "authorization: Bearer ${RENDER_API_TOKEN}" --header 'content-type: application/json' --data "{\"clearCache\": \"clear\", \"imageUrl\": \"${CI_REGISTRY_IMAGE}/${APP_DIR}${NAME_PROJECT}:${CI_COMMIT_SHORT_SHA}\" }"
 
 .rules-changes:
   rules:

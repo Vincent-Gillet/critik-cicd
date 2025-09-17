@@ -29,6 +29,8 @@
 	<properties>
 		<java.version>21</java.version>
         <sonar.organization>critik-sonar</sonar.organization>
+        <selenium.version>4.35.0</selenium.version>
+
     </properties>
 	<dependencies>
 		<dependency>
@@ -107,6 +109,27 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>${selenium.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-grid</artifactId>
+            <version>${selenium.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.titusfortner</groupId>
+            <artifactId>selenium-logger</artifactId>
+            <version>2.4.0</version>
         </dependency>
 
 	</dependencies>
