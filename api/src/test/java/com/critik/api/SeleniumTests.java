@@ -10,7 +10,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import java.time.Duration;
 
-@SpringBootTest
 class SeleniumTests {
 
     // Selenium test - v18
