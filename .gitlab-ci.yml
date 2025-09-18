@@ -37,18 +37,17 @@ variables:
         "auths": {
           "${CI_REGISTRY}": {
             "auth": "$(echo -n "${CI_REGISTRY_USER}:${CI_REGISTRY_PASSWORD}" | base64 -w0)"
+          },
+          "https://index.docker.io/v1/": {
+            "auth": "$(echo -n "${DOCKERHUB_USERNAME}:${DOCKERHUB_PASSWORD}" | base64 -w0)"
           }
         }
       }
       EOF
     - cd ${APP_DIR}
   script:
-    - /kaniko/executor \
-      --context . \
-      --dockerfile production.Dockerfile \
-      --destination ${CI_REGISTRY_IMAGE}/${APP_DIR}${NAME_PROJECT}:${CI_COMMIT_SHORT_SHA} \
-      --destination ${CI_REGISTRY}/${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}:${CI_COMMIT_SHORT_SHA} \
-      --skip-tls-verify
+    - /kaniko/executor --context . --dockerfile production.Dockerfile --destination ${CI_REGISTRY_IMAGE}/${APP_DIR}${NAME_PROJECT}:${CI_COMMIT_SHORT_SHA} --destination docker.io/${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}:${CI_COMMIT_SHORT_SHA} --skip-tls-verify
+
 
 .deploy:
   stage: deploy
