@@ -28,10 +28,8 @@ variables:
   stage: package
   image: gcr.io/kaniko-project/executor:debug
   variables:
-    # Kaniko expects a docker config at /kaniko/.docker/config.json
     DOCKER_CONFIG: /kaniko/.docker
   before_script:
-    # create docker config with registry credentials
     - mkdir -p /kaniko/.docker
     - |
       cat > /kaniko/.docker/config.json <<EOF
@@ -193,6 +191,9 @@ package api image:
     - .docker-build
     - .rules-changes
     - .mysql-service
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [ "" ]
 
 deploy client:
   extends:
