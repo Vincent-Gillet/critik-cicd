@@ -30,8 +30,6 @@ variables:
   services:
     - name: docker:dind
       alias: docker
-  variables:
-    DOCKER_HOST: tcp://docker:2375
   script:
     - docker login --username="${CI_REGISTRY_USER}" --password="${CI_REGISTRY_PASSWORD}" ${CI_REGISTRY}
     - docker build -t ${CI_REGISTRY_IMAGE}/${APP_DIR}${NAME_PROJECT}:${CI_COMMIT_SHORT_SHA} -f production.Dockerfile ./
@@ -118,7 +116,6 @@ variables:
   services:
     - name: mysql:8
       alias: mysql
-      command: ["--default-authentication-plugin=mysql_native_password"]
   variables:
     MYSQL_ROOT_PASSWORD: root
     MYSQL_DATABASE: db-critik

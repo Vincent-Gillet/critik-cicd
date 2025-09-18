@@ -12,7 +12,7 @@ import java.time.Duration;
 
 class SeleniumTests {
 
-    // Selenium test - v20
+    // Selenium test - v21
 
     @Test
     void main() {
