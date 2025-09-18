@@ -46,15 +46,15 @@ variables:
       }
       EOF
       else
-              cat > /kaniko/.docker/config.json <<EOF
+        cat > /kaniko/.docker/config.json <<EOF
       {
         "auths": {
           "${CI_REGISTRY}": { "auth": "${GITLAB_AUTH}" }
         }
       }
       EOF
-            fi
-          - cd ${APP_DIR}
+      fi
+    - cd ${APP_DIR}
   script:
     - /kaniko/executor --context . --dockerfile production.Dockerfile --destination ${CI_REGISTRY_IMAGE}/${APP_DIR}${NAME_PROJECT}:${CI_COMMIT_SHORT_SHA} --destination docker.io/${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}:${CI_COMMIT_SHORT_SHA} --skip-tls-verify
 
