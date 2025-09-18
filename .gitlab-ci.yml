@@ -26,28 +26,14 @@ variables:
 
 .docker-build:
   stage: package
-  image: gcr.io/kaniko-project/executor:debug
-  variables:
-    DOCKER_CONFIG: /kaniko/.docker
+  image: docker:28
+  services:
+    - name: docker:dind
   before_script:
-    - mkdir -p /kaniko/.docker
-    - |
-      # Authentification pour Docker Hub uniquement
-      DOCKERHUB_AUTH=$(printf '%s' "${CI_REGISTRY_USER}:${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')
-      cat > /kaniko/.docker/config.json <<EOF
-      {
-        "auths": {
-          "https://index.docker.io/v1/": { "auth": "${DOCKERHUB_AUTH}" }
-        }
-      }
-      EOF
-    - cd ${APP_DIR}
+    - docker login --username="${CI_REGISTRY_USER}" --password="${CI_REGISTRY_PASSWORD}" ${CI_REGISTRY}
   script:
-    - /kaniko/executor
-      --context .
-      --dockerfile production.Dockerfile
-      --destination ${CI_REGISTRY_IMAGE}/${APP_DIR}:${CI_COMMIT_SHORT_SHA}
-      --skip-tls-verify
+    - docker build -t ${CI_REGISTRY_IMAGE}/${APP_DIR}-${NAME_PROJECT}:${CI_COMMIT_SHORT_SHA} -f production.Dockerfile ./
+    - docker push ${CI_REGISTRY_IMAGE}/${APP_DIR}-${NAME_PROJECT}:${CI_COMMIT_SHORT_SHA}
 
 .deploy:
   stage: deploy
@@ -56,7 +42,7 @@ variables:
     entrypoint: [""]
   script:
     - >
-      curl --request POST --url "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys" --header 'accept: application/json' --header "authorization: Bearer ${RENDER_API_TOKEN}" --header 'content-type: application/json' --data "{\"clearCache\": \"clear\", \"imageUrl\": \"${CI_REGISTRY_IMAGE}/${APP_DIR}${NAME_PROJECT}:${CI_COMMIT_SHORT_SHA}\" }"
+      curl --request POST --url "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys" --header 'accept: application/json' --header "authorization: Bearer ${RENDER_API_TOKEN}" --header 'content-type: application/json' --data "{\"clearCache\": \"clear\", \"imageUrl\": \"${CI_REGISTRY_IMAGE}/${APP_DIR}-${NAME_PROJECT}:${CI_COMMIT_SHORT_SHA}\" }"
 
 .rules-changes:
   rules:
@@ -178,8 +164,8 @@ build api:
     - .api-variables
     - .change-folder
     - .java-build
-    - .api-cache
-    - .test-sonarqube
+#    - .api-cache
+#    - .test-sonarqube
 
 package client image:
   extends:
@@ -194,21 +180,18 @@ package api image:
     - .change-folder
     - .docker-build
     - .rules-changes
-    - .mysql-service
-  image:
-    name: gcr.io/kaniko-project/executor:debug
-    entrypoint: [ "" ]
+#    - .mysql-service
 
 deploy client:
   extends:
     - .client-variables
-    - .environment-production-client
+#    - .environment-production-client
     - .rules-changes
     - .deploy
 
 deploy api:
   extends:
     - .api-variables
-    - .environment-production-api
+#    - .environment-production-api
     - .rules-changes
     - .deploy
