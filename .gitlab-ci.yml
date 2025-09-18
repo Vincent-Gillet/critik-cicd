@@ -29,9 +29,8 @@ variables:
   image: docker:28
   services:
     - name: docker:dind
-  before_script:
-    - docker login --username="${CI_REGISTRY_USER}" --password="${CI_REGISTRY_PASSWORD}" ${CI_REGISTRY}
   script:
+    - docker login --username="${CI_REGISTRY_USER}" --password="${CI_REGISTRY_PASSWORD}" ${CI_REGISTRY}
     - ls -la
     - docker build -t ${CI_REGISTRY_IMAGE}/${APP_DIR}-${NAME_PROJECT}:${CI_COMMIT_SHORT_SHA} -f production.Dockerfile ./
     - docker push ${CI_REGISTRY_IMAGE}/${APP_DIR}-${NAME_PROJECT}:${CI_COMMIT_SHORT_SHA}
