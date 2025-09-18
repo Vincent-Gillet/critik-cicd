@@ -29,6 +29,14 @@ variables:
   image: docker:28
   services:
     - name: docker:dind
+      alias: docker
+  variables:
+    DOCKER_TLS_CERTDIR: ""     # disable TLS so docker client can connect on :2375
+  before_script:
+    - env | sort
+    - echo "DOCKER_HOST=$DOCKER_HOST"
+    - getent hosts docker || cat /etc/hosts || true
+    - cd ${APP_DIR}
   script:
     - docker login --username="${CI_REGISTRY_USER}" --password="${CI_REGISTRY_PASSWORD}" ${CI_REGISTRY}
     - docker build -t ${CI_REGISTRY_IMAGE}/${APP_DIR}${NAME_PROJECT}:${CI_COMMIT_SHORT_SHA} -f production.Dockerfile ./
