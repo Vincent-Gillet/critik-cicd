@@ -26,21 +26,26 @@ variables:
 
 .docker-build:
   stage: package
-  image: docker:28
-  services:
-    - name: docker:dind
-      alias: docker
+  image: gcr.io/kaniko-project/executor:latest
   variables:
-    DOCKER_TLS_CERTDIR: ""     # disable TLS so docker client can connect on :2375
+    # Kaniko expects a docker config at /kaniko/.docker/config.json
+    DOCKER_CONFIG: /kaniko/.docker
   before_script:
-    - env | sort
-    - echo "DOCKER_HOST=$DOCKER_HOST"
-    - getent hosts docker || cat /etc/hosts || true
+    # create docker config with registry credentials
+    - mkdir -p /kaniko/.docker
+    - |
+      cat > /kaniko/.docker/config.json <<EOF
+      {
+        "auths": {
+          "${CI_REGISTRY}": {
+            "auth": "$(echo -n "${CI_REGISTRY_USER}:${CI_REGISTRY_PASSWORD}" | base64 -w0)"
+          }
+        }
+      }
+      EOF
     - cd ${APP_DIR}
   script:
-    - docker login --username="${CI_REGISTRY_USER}" --password="${CI_REGISTRY_PASSWORD}" ${CI_REGISTRY}
-    - docker build -t ${CI_REGISTRY_IMAGE}/${APP_DIR}${NAME_PROJECT}:${CI_COMMIT_SHORT_SHA} -f production.Dockerfile ./
-    - docker push ${CI_REGISTRY_IMAGE}/${APP_DIR}${NAME_PROJECT}:${CI_COMMIT_SHORT_SHA}
+    - /kaniko/executor --context . --dockerfile production.Dockerfile --destination ${CI_REGISTRY_IMAGE}/${APP_DIR}${NAME_PROJECT}:${CI_COMMIT_SHORT_SHA} --skip-tls-verify
 
 .deploy:
   stage: deploy
