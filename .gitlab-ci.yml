@@ -7,6 +7,9 @@ stages:
 
 variables:
   NAME_PROJECT: critik
+  CI_REGISTRY: docker.io
+  CI_REGISTRY_IMAGE: docker.io/vincentgillet12
+  CI_REGISTRY_USER: vincentgillet12
 
 .build:
   stage: build
