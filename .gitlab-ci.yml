@@ -32,6 +32,7 @@ variables:
   before_script:
     - docker login --username="${CI_REGISTRY_USER}" --password="${CI_REGISTRY_PASSWORD}" ${CI_REGISTRY}
   script:
+    - ls -la
     - docker build -t ${CI_REGISTRY_IMAGE}/${APP_DIR}-${NAME_PROJECT}:${CI_COMMIT_SHORT_SHA} -f production.Dockerfile ./
     - docker push ${CI_REGISTRY_IMAGE}/${APP_DIR}-${NAME_PROJECT}:${CI_COMMIT_SHORT_SHA}
 
