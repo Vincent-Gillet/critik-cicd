@@ -6,7 +6,7 @@ stages:
   - deploy
 
 variables:
-  NAME_PROJECT: -critik
+  NAME_PROJECT: critik
 
 .build:
   stage: build
@@ -32,31 +32,22 @@ variables:
   before_script:
     - mkdir -p /kaniko/.docker
     - |
-      # create portable base64 auths (avoid `-w0` which may be missing)
-      GITLAB_AUTH=$(printf '%s' "${CI_REGISTRY_USER}:${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')
-      # build JSON and optionally add Docker Hub auth only if provided
-      if [ -n "${DOCKERHUB_USERNAME}" ]; then
-        DOCKERHUB_AUTH=$(printf '%s' "${DOCKERHUB_USERNAME}:${DOCKERHUB_PASSWORD}" | base64 | tr -d '\n')
-        cat > /kaniko/.docker/config.json <<EOF
+      # Authentification pour Docker Hub uniquement
+      DOCKERHUB_AUTH=$(printf '%s' "${CI_REGISTRY_USER}:${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')
+      cat > /kaniko/.docker/config.json <<EOF
       {
         "auths": {
-          "${CI_REGISTRY}": { "auth": "${GITLAB_AUTH}" },
           "https://index.docker.io/v1/": { "auth": "${DOCKERHUB_AUTH}" }
         }
       }
       EOF
-      else
-        cat > /kaniko/.docker/config.json <<EOF
-      {
-        "auths": {
-          "${CI_REGISTRY}": { "auth": "${GITLAB_AUTH}" }
-        }
-      }
-      EOF
-      fi
     - cd ${APP_DIR}
   script:
-    - /kaniko/executor --context . --dockerfile production.Dockerfile --destination ${CI_REGISTRY_IMAGE}/${APP_DIR}${NAME_PROJECT}:${CI_COMMIT_SHORT_SHA} --destination docker.io/${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}:${CI_COMMIT_SHORT_SHA} --skip-tls-verify
+    - /kaniko/executor
+      --context .
+      --dockerfile production.Dockerfile
+      --destination ${CI_REGISTRY_IMAGE}/${APP_DIR}:${CI_COMMIT_SHORT_SHA}
+      --skip-tls-verify
 
 .deploy:
   stage: deploy
@@ -80,7 +71,7 @@ variables:
   image: node:18
   script:
     - npm ci --cache .npm --prefer-offline
-    - npx npm run build
+    - npx npm run build --prod
   artifacts:
     paths:
       - ${APP_DIR}/dist/
@@ -98,11 +89,11 @@ variables:
     - .rules-changes
   image: maven:3.9.6-eclipse-temurin-21
   script:
-    - mvn clean compile
+    - mvn clean package -DskipTests
   artifacts:
     expire_in: 1 day
     paths:
-      - ${APP_DIR}/target/
+      - ${APP_DIR}/target/*.jar
 
 .api-cache:
   cache:
