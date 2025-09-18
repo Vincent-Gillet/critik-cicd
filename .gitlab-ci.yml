@@ -6,7 +6,7 @@ stages:
   - deploy
 
 variables:
-  NAME_PROJECT: -cirtik
+  NAME_PROJECT: -critik
 
 .build:
   stage: build
