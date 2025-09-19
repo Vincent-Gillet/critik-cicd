@@ -9,6 +9,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 @Data
 @Entity
@@ -26,6 +28,7 @@ public class Critique {
     @NotBlank(message = "Le commentaire ne peut pas être vide")
     private String commentaire;
 
+    @Temporal(TemporalType.DATE)
     @NotNull(message = "La date ne peut pas être vide")
     private Date date;
 

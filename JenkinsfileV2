@@ -28,11 +28,37 @@ pipeline {
         RENDER_SERVICE_ID_SPRING = 'srv-d36jd67fte5s73bhinl0'
     }
     stages {
+        stage('Build Spring Boot') {
+            steps {
+                dir('api') {
+                    sh 'mvn clean package -DskipTests'
+                }
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                dir('api') {
+                    sh '''
+                        mvn sonar:sonar \
+                          -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                          -Dsonar.organization=${SONAR_ORGANIZATION} \
+                          -Dsonar.host.url=${SONAR_HOST_URL} \
+                          -Dsonar.login=${SONAR_LOGIN}
+                    '''
+                }
+            }
+        }
+        stage('Test with Selenium') {
+            steps {
+                dir('api') {
+                    sh 'mvn test -Dtest=SeleniumTests'
+                }
+            }
+        }
         stage('Build and Push Docker Images') {
             steps {
                 script {
                     def services = [
-                        [name: 'mysql-app', path: './database', dockerfile: 'Dockerfile'],
                         [name: 'spring-app', path: './api', dockerfile: 'production.Dockerfile'],
                         [name: 'angular-app', path: './client', dockerfile: 'production.Dockerfile']
                     ]
@@ -45,12 +71,10 @@ pipeline {
                 }
             }
         }
-
         stage('Deploy to Render') {
             steps {
                 script {
                     def renderServices = [
-                        [name: 'mysql-app', id: env.RENDER_SERVICE_ID_MYSQL],
                         [name: 'angular-app', id: env.RENDER_SERVICE_ID_ANGULAR],
                         [name: 'spring-app', id: env.RENDER_SERVICE_ID_SPRING]
                     ]

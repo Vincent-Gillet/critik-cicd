@@ -14,6 +14,8 @@ import lombok.ToString;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 @Data
 @Entity
@@ -31,6 +33,7 @@ public class Realisateur {
     @NotBlank(message = "La description du réalisateur ne peut pas être vide")
     private String description_realisateur;
 
+    @Temporal(TemporalType.DATE)
     @NotNull(message = "La date de naissance du réalisateur ne peut pas être vide")
     private Date date_naissance;
 
