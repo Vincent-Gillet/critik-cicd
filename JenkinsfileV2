@@ -92,4 +92,12 @@ pipeline {
             }
         }
     }
+    post {
+        success {
+            echo 'Pipeline succeeded! Angular: https://critik-angular-app-latest.onrender.com, Spring: https://critik-spring-app-ter3.onrender.com'
+        }
+        failure {
+            echo 'Pipeline failed. Check logs for details.'
+        }
+    }
 }
