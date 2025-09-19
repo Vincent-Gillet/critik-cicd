@@ -17,7 +17,10 @@ class SeleniumTests {
     @Test
     void main() {
 
-        WebDriver driver = new ChromeDriver();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless", "--no-sandbox", "--disable-dev-shm-usage");
+
+        WebDriver driver = new ChromeDriver(options);
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
 
         driver.get("http://localhost:4200");
@@ -50,6 +53,8 @@ class SeleniumTests {
         );
 
         driver.findElement(By.xpath("//*[@id=\"navbarNav\"]/ul/li[1]/a\n")).click();
+
+        driver.quit();
 
     }
 }
