@@ -12,6 +12,8 @@ RUN curl -o /app/wait-for-it.sh https://raw.githubusercontent.com/vishnubob/wait
     && chmod +x /app/wait-for-it.sh
 EXPOSE 8080
 ENTRYPOINT ["/bin/sh", "-c"]
-CMD ["/app/wait-for-it.sh ${MYSQL_HOST:-sql8.freesqldatabase.com}:${MYSQL_PORT:-3306} -t 30 -- java -jar app.jar"]
+CMD ["java", "-jar", "app.jar"]
+
+#CMD ["/app/wait-for-it.sh ${MYSQL_HOST:-sql8.freesqldatabase.com}:${MYSQL_PORT:-3306} -t 30 -- java -jar app.jar"]
 
 #ENTRYPOINT ["./wait-for-it.sh", "mysql:3306", "--", "java", "-jar", "app.jar"]
