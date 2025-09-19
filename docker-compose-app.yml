@@ -21,7 +21,7 @@ services:
   angular:
     build:
       context: ./client
-      dockerfile: production.production.Dockerfile
+      dockerfile: production.Dockerfile
     ports:
       - "4200:80"
     networks:
