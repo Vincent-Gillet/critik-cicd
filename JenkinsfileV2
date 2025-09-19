@@ -23,9 +23,8 @@ pipeline {
 
 
         RENDER_API_TOKEN = 'rnd_z9zHYwJSBX9VmXrAiLNedzkdNls6'
-        RENDER_SERVICE_ID_MYSQL = 'srv-d36jf60dl3ps738di3dg'
-        RENDER_SERVICE_ID_ANGULAR = 'srv-d36jpbumcj7s73dledjg'
-        RENDER_SERVICE_ID_SPRING = 'srv-d36jd67fte5s73bhinl0'
+        RENDER_SERVICE_ID_ANGULAR = 'srv-d36ubuh5pdvs739ldp00'
+        RENDER_SERVICE_ID_SPRING = 'srv-d36udqbe5dus738s4a1g'
     }
     stages {
         stage('Build Spring Boot') {
@@ -48,11 +47,9 @@ pipeline {
                 }
             }
         }
-        stage('Test with Selenium') {
+        stage('Docker Login') {
             steps {
-                dir('api') {
-                    sh 'mvn test -Dtest=SeleniumTests'
-                }
+                sh 'echo $DOCKER_REGISTRY_CREDENTIALS_PSW | docker login docker.io -u $DOCKER_REGISTRY_CREDENTIALS_USR --password-stdin'
             }
         }
         stage('Build and Push Docker Images') {
