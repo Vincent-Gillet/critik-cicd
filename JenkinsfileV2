@@ -1,0 +1,71 @@
+pipeline {
+    agent any
+    tools {
+        nodejs 'node'
+        maven 'mvn'
+    }
+    environment {
+        IMAGE_NAME = 'angular-app'
+        IMAGE_TAG = 'latest'
+        DOCKER_COMPOSE = '/var/jenkins_home/bin/docker-compose'
+        SONAR_PROJECT_KEY = 'Vincent-Gillet_critik-cicd'
+        SONAR_ORGANIZATION = 'critik-sonar'
+        SONAR_HOST_URL = 'https://sonarcloud.io'
+
+        SONAR_LOGIN = credentials('sonar-token')
+
+/*
+        SONAR_LOGIN = '0648ab4d42c63de71c83f971849770c94cd9fb65'
+ */
+        DOCKER_REGISTRY = 'vincentgillet12'
+        DOCKER_REGISTRY_IMAGE = 'docker.io/vincentgillet12'
+        DOCKER_REGISTRY_CREDENTIALS = credentials('docker-hub-credentials')
+
+
+        RENDER_API_TOKEN = 'rnd_z9zHYwJSBX9VmXrAiLNedzkdNls6'
+        RENDER_SERVICE_ID_MYSQL = 'srv-d36jf60dl3ps738di3dg'
+        RENDER_SERVICE_ID_ANGULAR = 'srv-d36jpbumcj7s73dledjg'
+        RENDER_SERVICE_ID_SPRING = 'srv-d36jd67fte5s73bhinl0'
+    }
+    stages {
+        stage('Build and Push Docker Images') {
+            steps {
+                script {
+                    def services = [
+                        [name: 'mysql-app', path: './database', dockerfile: 'Dockerfile'],
+                        [name: 'spring-app', path: './api', dockerfile: 'production.Dockerfile'],
+                        [name: 'angular-app', path: './client', dockerfile: 'production.Dockerfile']
+                    ]
+                    services.each { svc ->
+                        sh """
+                            docker build --platform=linux/amd64 -t $DOCKER_REGISTRY/critik-${svc.name}:$BUILD_NUMBER -t $DOCKER_REGISTRY/critik-${svc.name}:latest -f ${svc.path}/${svc.dockerfile} ${svc.path}
+                            docker push $DOCKER_REGISTRY/critik-${svc.name}:$BUILD_NUMBER
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Render') {
+            steps {
+                script {
+                    def renderServices = [
+                        [name: 'mysql-app', id: env.RENDER_SERVICE_ID_MYSQL],
+                        [name: 'angular-app', id: env.RENDER_SERVICE_ID_ANGULAR],
+                        [name: 'spring-app', id: env.RENDER_SERVICE_ID_SPRING]
+                    ]
+                    renderServices.each { svc ->
+                        sh """
+                            curl --request POST \
+                            --url "https://api.render.com/v1/services/${svc.id}/deploys" \
+                            --header 'accept: application/json' \
+                            --header "authorization: Bearer $RENDER_API_TOKEN" \
+                            --header 'content-type: application/json' \
+                            --data '{\"clearCache\": \"clear\", \"imageUrl\": \"$DOCKER_REGISTRY_IMAGE/critik-${svc.name}:$BUILD_NUMBER\"}'
+                        """
+                    }
+                }
+            }
+        }
+    }
+}

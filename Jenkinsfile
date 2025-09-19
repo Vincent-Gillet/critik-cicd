@@ -173,19 +173,20 @@ pipeline {
         
         stage('Build and Push Docker Images') {
             steps {
-                sh '''
-                    docker build --platform=linux/amd64 -t $DOCKER_REGISTRY/critik-mysql-app:$BUILD_NUMBER -t $DOCKER_REGISTRY/critik-mysql-app:latest ./database
-                    docker push $DOCKER_REGISTRY/critik-mysql-app:$BUILD_NUMBER
-                    docker push $DOCKER_REGISTRY/critik-mysql-app:latest
-
-                    docker build --platform=linux/amd64 -t $DOCKER_REGISTRY/critik-spring-app:$BUILD_NUMBER -t $DOCKER_REGISTRY/critik-spring-app:latest ./api
-                    docker push $DOCKER_REGISTRY/critik-spring-app:$BUILD_NUMBER
-                    docker push $DOCKER_REGISTRY/critik-spring-app:latest
-
-                    docker build --platform=linux/amd64 -t $DOCKER_REGISTRY/critik-angular-app:$BUILD_NUMBER -t $DOCKER_REGISTRY/critik-angular-app:latest ./client
-                    docker push $DOCKER_REGISTRY/critik-angular-app:$BUILD_NUMBER
-                    docker push $DOCKER_REGISTRY/critik-angular-app:latest
-                '''
+                script {
+                    def services = [
+                        [name: 'mysql-app', path: './database', dockerfile: 'Dockerfile'],
+                        [name: 'spring-app', path: './api', dockerfile: 'production.Dockerfile'],
+                        [name: 'angular-app', path: './client', dockerfile: 'production.Dockerfile']
+                    ]
+                    services.each { svc ->
+                        sh """
+                            docker build --platform=linux/amd64 -t $DOCKER_REGISTRY/critik-${svc.name}:$BUILD_NUMBER -t $DOCKER_REGISTRY/critik-${svc.name}:latest -f ${svc.path}/${svc.dockerfile} ${svc.path}
+                            docker push $DOCKER_REGISTRY/critik-${svc.name}:$BUILD_NUMBER
+                            docker push $DOCKER_REGISTRY/critik-${svc.name}:latest
+                        """
+                    }
+                }
             }
         }
 
