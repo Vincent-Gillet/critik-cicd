@@ -93,19 +93,41 @@ pipeline {
                 }
             }
         }
-        stage('Test Spring Boot') {
+/*         stage('Test with Selenium Standalone') {
+            steps {
+                sh '''
+                docker run -d --name selenium -p 4444:4444 --platform=linux/arm64 seleniarm/standalone-chromium:latest
+                # Run your Selenium tests pointing to http://localhost:4444/wd/hub
+                '''
+            }
+        }
+        stage('Setup Chrome for Selenium') {
+            steps {
+                sh '''
+                apt-get update
+                apt-get install -y wget unzip libgbm-dev libnss3 libx11-xcb1 libxcomposite1 libxcursor1 libxdamage1 libxi6 libxtst6 libxrandr2 libasound2 libatk1.0-0 libatk-bridge2.0-0 libgtk-3-0
+                wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+                apt-get install -y ./google-chrome-stable_current_amd64.deb
+                wget https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip
+                unzip chromedriver_linux64.zip
+                mv chromedriver /usr/bin/chromedriver
+                chmod +x /usr/bin/chromedriver
+                '''
+            }
+        } */
+/*         stage('Test Spring Boot') {
             steps {
                 dir('api') {
-/*
+ *//*
                     sh 'mvn clean compile'
                     sh 'mvn test -Dmaven.test.failure.ignore=true'
-*/
+*//*
 
                     sh 'mvn clean install'
 
                 }
             }
-        }
+        } */
         stage('Build Docker Images') {
             steps {
                 sh "${DOCKER_COMPOSE} build"

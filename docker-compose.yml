@@ -15,7 +15,7 @@ services:
   angular:
     build:
       context: ./client
-      dockerfile: client/production.production.Dockerfile
+      dockerfile: production.Dockerfile
     ports:
       - "4200:80"
     networks:
@@ -43,7 +43,7 @@ services:
   spring:
     build:
       context: ./api
-      dockerfile: api/production.Dockerfile
+      dockerfile: production.Dockerfile
     ports:
       - "8080:8080"
     networks:
