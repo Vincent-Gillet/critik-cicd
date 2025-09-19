@@ -84,6 +84,15 @@ pipeline {
                 }
             }
         }
+        stage('Start Angular for Selenium') {
+            steps {
+                dir('client') {
+                    sh 'nohup npm start &'
+                    // Wait for Angular to be ready (e.g., sleep 20)
+                    sh 'sleep 20'
+                }
+            }
+        }
         stage('Test Spring Boot') {
             steps {
                 dir('api') {
