@@ -97,7 +97,7 @@ pipeline {
     }
     post {
         success {
-            echo 'Pipeline succeeded! Angular: https://critik-angular-app-4eyi.onrender.com/, Spring: https://critik-spring-app-ter3.onrender.com'
+            echo 'Pipeline succeeded! Angular: https://critik-angular-app-4eyi.onrender.com/, Spring: https://critik-spring-app-254.onrender.com/'
         }
         failure {
             echo 'Pipeline failed. Check logs for details.'

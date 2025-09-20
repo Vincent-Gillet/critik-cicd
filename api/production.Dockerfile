@@ -11,7 +11,6 @@ COPY --from=build /app/target/*.jar app.jar
 #RUN curl -o /app/wait-for-it.sh https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh \
 #    && chmod +x /app/wait-for-it.sh
 EXPOSE 8080
-ENTRYPOINT ["/bin/sh", "-c"]
 CMD ["java", "-jar", "app.jar"]
 
 #CMD ["/app/wait-for-it.sh ${DATABASE_HOST}:${DATABASE_PORT} -t 30 -- java -jar app.jar"]
