@@ -1,10 +1,10 @@
 FROM mysql:8.0
 
-ENV MYSQL_DATABASE=db-critik
-ENV MYSQL_USER=user
-ENV MYSQL_PASSWORD=password
-ENV MYSQL_ROOT_PASSWORD=root
-ENV MYSQL_HOST=critik-mysql-app.onrender.com
+ENV MYSQL_DATABASE=sql8799295
+ENV MYSQL_USER=sql8799295
+ENV MYSQL_PASSWORD=ztyb4yEjR9
+ENV MYSQL_ROOT_PASSWORD=ztyb4yEjR9
+ENV MYSQL_HOST=sql8.freesqldatabase.com
 ENV MYSQL_PORT=3306
 
 #COPY ./init.sql /docker-entrypoint-initdb.d/
