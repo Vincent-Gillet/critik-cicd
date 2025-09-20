@@ -63,6 +63,7 @@ pipeline {
                         sh """
                             docker build --platform=linux/amd64 -t $DOCKER_REGISTRY/critik-${svc.name}:$BUILD_NUMBER -t $DOCKER_REGISTRY/critik-${svc.name}:latest -f ${svc.path}/${svc.dockerfile} ${svc.path}
                             docker push $DOCKER_REGISTRY/critik-${svc.name}:$BUILD_NUMBER
+                            docker push $DOCKER_REGISTRY/critik-${svc.name}:latest
                         """
                     }
                 }
@@ -82,7 +83,7 @@ pipeline {
                             --header 'accept: application/json' \
                             --header "authorization: Bearer $RENDER_API_TOKEN" \
                             --header 'content-type: application/json' \
-                            --data '{\"clearCache\": \"clear\", \"imageUrl\": \"$DOCKER_REGISTRY_IMAGE/critik-${svc.name}:$BUILD_NUMBER\"}'
+                            --data '{\"clearCache\": \"clear\", \"imageUrl\": \"$DOCKER_REGISTRY_IMAGE/critik-${svc.name}:latest\"}'
                         """
                     }
                 }
@@ -91,7 +92,7 @@ pipeline {
     }
     post {
         success {
-            echo 'Pipeline succeeded! Angular: https://critik-angular-app-latest.onrender.com, Spring: https://critik-spring-app-ter3.onrender.com'
+            echo 'Pipeline succeeded! Angular: https://critik-angular-app-4eyi.onrender.com/, Spring: https://critik-spring-app-ter3.onrender.com'
         }
         failure {
             echo 'Pipeline failed. Check logs for details.'
