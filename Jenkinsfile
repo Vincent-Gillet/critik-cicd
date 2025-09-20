@@ -27,6 +27,11 @@ pipeline {
         RENDER_SERVICE_ID_SPRING = 'srv-d36udqbe5dus738s4a1g'
     }
     stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Vincent-Gillet/critik-cicd.git'
+            }
+        }
         stage('Build Spring Boot') {
             steps {
                 dir('api') {
