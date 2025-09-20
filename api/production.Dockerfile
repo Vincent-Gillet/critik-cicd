@@ -14,6 +14,6 @@ EXPOSE 8080
 ENTRYPOINT ["/bin/sh", "-c"]
 CMD ["java", "-jar", "app.jar"]
 
-#CMD ["/app/wait-for-it.sh ${DATABASE_HOST:${DATABASE_PORT} -t 30 -- java -jar app.jar"]
+#CMD ["/app/wait-for-it.sh ${DATABASE_HOST}:${DATABASE_PORT} -t 30 -- java -jar app.jar"]
 
 #ENTRYPOINT ["./wait-for-it.sh", "mysql:3306", "--", "java", "-jar", "app.jar"]
